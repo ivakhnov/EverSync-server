@@ -5,22 +5,23 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.UUID;
+import java.util.logging.Logger;
 import java.io.*; 
-
-import org.json.JSONObject;
 
 import eversync.server.EverSyncClient;
 import eversync.server.EvernoteClient;
 import eversync.server.MessageReflect;
+import eversync.server.Message.*;
 
 
 public class Server  {
-	
+	// Logger for debugging purposes
+	private static Logger log = Logger.getLogger(Server.class.getName());
 	
 	/**
 	 * The port on which the server will listen
 	 */
-	private static final int serverPort = 8080;
+	private static final int _serverPort = 8080;
 	
 	/**
 	 * A set of currently connected clients
@@ -51,26 +52,24 @@ public class Server  {
 	 * @return
 	 * @throws Exception
 	 */
-	private static EverSyncClient handShake(BufferedReader in, PrintWriter out) throws Exception {
+	private static EverSyncClient handShake(Connection conn) throws Exception {
 		// Prepare the handshake request
-		JSONObject req = new JSONObject();
-		req.put("type", "Handshake Request");
-		String handshakeRequest = req.toString();
-		
-		// Send the handshake request and read the response
-		out.println(handshakeRequest);
-		JSONObject res = new JSONObject(in.readLine());
+		HandshakeRequest handshakeRequest = new HandshakeRequest();
 
-		String clientId = null;
+		// Send the handshake request and read the response
+		conn.sendMsg(handshakeRequest);
+		Message res = conn.getMsg();
+
+		String clientId;
 		EverSyncClient client;
 		
 		// Two possible response types are possible.
 		// Or it is the very first handshake with this client ever, 
 		// then it has to be registered in the server before any information exchange can happen.
 		// Or it has already being registered, so then the response type is just a normal handshake.
-		String resType = (String) res.get("type");
+		String resType = res.getMsgType();
 		if (resType.equals("Handshake Response")) {
-			clientId = (String) res.get("clientId");
+			clientId = res.getValue("clientId");
 			client = _installedClients.get(clientId);
 		} else if (resType.equals("Initial Handshake Response")) {
 			// Generate a new unique id for the client
@@ -79,14 +78,12 @@ public class Server  {
 			} while (_installedClients.containsKey(clientId));
 			
 			client = new EverSyncClient(clientId);
-			installNewClient(client, in, out);
+			installNewClient(client, conn);
 		} else {
 			throw new NoSuchElementException();
 		}
 		
-		client.setIn(in);
-		client.setOut(out);
-		_connectedClients.add(clientId);
+		client.setConn(conn);
 		return client;
 	}
 	
@@ -97,27 +94,24 @@ public class Server  {
 	 * @param client
 	 * @throws Exception
 	 */
-	private static void installNewClient(EverSyncClient client, BufferedReader in, PrintWriter out) throws Exception {
+	private static void installNewClient(EverSyncClient client, Connection conn) throws Exception {
 		// Prepare and send the installation request
-		JSONObject req = new JSONObject();
-		req.put("type", "Client Installation Request");
-		String installRequest = req.toString();
-		out.println(installRequest);
+		InstallRequest installRequest = new InstallRequest();
+
+		conn.sendMsg(installRequest);
 		
 		// Receive the response with the information about the client.
-		JSONObject res = new JSONObject(in.readLine());
+		Message res = conn.getMsg();
 		// Get the key values from the message
-		String os = (String) res.get("OS");
+		String os = res.getValue("OS");
 		// Send the values to the client object.
 		client.setOs(os);
 				
 		// Prepare and send the acknowledgement message with the assigned id of the client.
-		JSONObject ack = new JSONObject();
-		ack.put("type", "Client Installation Acknowledgement");
-		ack.put("clientId", client.getId());
-		ack.put("rootPath", client.getRootPath());
-		String installAcknowledgement = ack.toString();
-		out.println(installAcknowledgement);
+		InstallAcknowledgement installAcknowledgement = 
+				new InstallAcknowledgement(client.getId(), client.getRootPath());
+		
+		conn.sendMsg(installAcknowledgement);
 		
 		// TO-DO
 		// HERE COMES THE PLUGIN INSTALLATION TO THE CLIENT
@@ -141,9 +135,10 @@ public class Server  {
 		
 		System.out.println("All plugins initialized successfully!");
 		
-		ServerSocket serverSocket = new ServerSocket(serverPort);
+		ServerSocket serverSocket = new ServerSocket(_serverPort);
 		try {
 			while(true) {
+				// Start new thread per connection
 				new ConnectionHandler(serverSocket.accept()).start();
 			}
 		} finally {
@@ -165,21 +160,37 @@ public class Server  {
 			// Create character streams for the socket.
             BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-
+            Connection connection = new Connection(in, out);
+            
             try {
-            	_client = handShake(in, out);
+            	_client = handShake(connection);
             	_clientID = _client.getId();
+            	_connectedClients.add(_clientID);
             } catch (Exception e) {
             	e.printStackTrace();
             }
-			
-			System.out.println("Connected to the client: " + _clientID);
+			log.info("Client connected: " + _clientID);
 		}
 		
 		
 		public void run() {
-			// HIER MOET IK TELKENS ALS HET SCHRIJVEN OF LEZEN NIET LUKT, INTERPRETEREN ALS EEN DISCONNECTIE!!!
-			//_client.sendMsg("Hallo!!");
+			// While the client is connected, listen to its messages
+			while (_connectedClients.contains(_clientID)) {
+				try {
+					Message msg = _client.getMsg();
+					String msgType = msg.getMsgType();
+					if (msgType.equals("Normal Request")) {
+						MessageReflect.parseMessage(_client, msg);
+					} else {
+						log.severe("Received unsupported message type: '"+ msg.getMsgType() +"' from client: " + _clientID);
+					}
+				} catch (Exception e) {
+					// Handle the disconnection of a client.
+					_connectedClients.remove(_clientID);
+					log.info("Client disconnected: " + _clientID);
+					break;
+				}
+			}
 		}
 	}
 } 

@@ -1,8 +1,6 @@
 package eversync.server;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 
 public class EverSyncClient {
 	
@@ -11,8 +9,7 @@ public class EverSyncClient {
 	 */
 	private final String _ID;
 	private String _OS;
-	private BufferedReader _in;
-	private PrintWriter _out;
+	private Connection _conn;
 	private String _rootPath;
 	
 	/**
@@ -55,24 +52,26 @@ public class EverSyncClient {
 	/**
 	 * Setters
 	 */
-	public void setIn(BufferedReader in) {
-		_in = in;
-	}
-	
-	public void setOut(PrintWriter out) {
-		_out = out;
-	}
-	
-	public String getMsg() throws IOException {
-		return _in.readLine();
-	}
-	
-	public void sendMsg(String msg) {
-		_out.println(msg);
+	public void setConn(Connection conn) {
+		_conn = conn;
 	}
 
 	public void setOs(String os) {
 		_OS = os;
 		setRootPath();
+	}
+	
+	
+	/**
+	 * Methods for sending and receiving messages from the client.
+	 * @throws IOException Two possible cases for exceptions: for being disconnected or if the received message could not be parsed. 
+	 */
+	public Message getMsg() throws IOException {
+		Message msg = _conn.getMsg();
+		return msg;
+	}
+	
+	public void sendMsg(Message msg) {
+		_conn.sendMsg(msg);
 	}
 }
