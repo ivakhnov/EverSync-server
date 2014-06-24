@@ -2,9 +2,10 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/Applications/My apps/eclipse/plugins/org.json-20120521.jar"/>
-	<classpathentry kind="lib" path="dependencies/evernote-api/evernote-api-1.25.1-javadoc.jar"/>
-	<classpathentry kind="lib" path="dependencies/evernote-api/evernote-api-1.25.1-sources.jar"/>
-	<classpathentry kind="lib" path="dependencies/evernote-api/evernote-api-1.25.1.jar"/>
+	<classpathentry kind="lib" path="libs/org.json-20120521.jar"/>
+	<classpathentry kind="lib" path="libs/evernote-api/evernote-api-1.25.1.jar"/>
+	<classpathentry kind="lib" path="libs/evernote-api/evernote-api-1.25.1-sources.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/iServerCCOWithAssociations"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

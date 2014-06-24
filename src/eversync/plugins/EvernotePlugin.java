@@ -1,4 +1,4 @@
-package eversync.server;
+package eversync.plugins;
 
 import java.util.List;
 
@@ -17,6 +17,7 @@ import com.evernote.edam.notestore.NotesMetadataList;
 import com.evernote.edam.notestore.NotesMetadataResultSpec;
 import com.evernote.edam.notestore.SyncChunk;
 import com.evernote.edam.notestore.SyncChunkFilter;
+import com.evernote.edam.notestore.SyncState;
 import com.evernote.edam.type.Data;
 import com.evernote.edam.type.Note;
 import com.evernote.edam.type.NoteSortOrder;
@@ -24,9 +25,14 @@ import com.evernote.edam.type.Notebook;
 import com.evernote.edam.type.Resource;
 import com.evernote.edam.type.ResourceAttributes;
 import com.evernote.edam.type.Tag;
+import com.evernote.thrift.TException;
 import com.evernote.thrift.transport.TTransportException;
 
-public class EvernoteClient extends Plugin {
+public class EvernotePlugin implements Plugin {
+	
+	public String _pluginName;
+	public String _extensionName;
+	public String _iconName;
 	
 	private UserStoreClient userStore;
 	private NoteStoreClient noteStore;
@@ -39,8 +45,10 @@ public class EvernoteClient extends Plugin {
 	 * authenticate with the Evernote web service. All of this code is boilerplate
 	 * - you can copy it straight into your application.
 	 */
-	public EvernoteClient(String token) throws Exception {
+	public EvernotePlugin(String token) throws Exception {
 		_pluginName = "Evernote";
+		_extensionName = "extensieNaam";
+		_iconName = "icoonNaam";
 		
 		// Set up the UserStore client and check that we can speak to the server
 		EvernoteAuth evernoteAuth = new EvernoteAuth(EvernoteService.SANDBOX, token);
@@ -59,6 +67,30 @@ public class EvernoteClient extends Plugin {
 		noteStore = factory.createNoteStoreClient();
 	}
 	
+	public void pollForChanges() throws EDAMUserException, EDAMSystemException, TException {
+		int latestUpdateCount = 0; // Persist this value
+				 
+		// Each time you want to check for new and updated notes...
+		SyncState currentState = noteStore.getSyncState();
+		int currentUpdateCount = currentState.getUpdateCount();
+		
+		System.out.println("getUpdateCount: " + currentUpdateCount);
+		System.out.println("getSyncState: " + noteStore.getSyncState());
+		
+		if (currentUpdateCount > latestUpdateCount) {
+		 
+//		  // Something in the account has changed, so search for notes
+//		  NotesMetadataList newNotes = noteStore.findNotesMetadata( ... );
+//		  
+//		  // Do something with the notes you found...
+//		  for (NoteMetadata note : newNotes.getNotes()) {
+//		    // ...
+//		  }
+		  
+		  // Keep track of the new high-water mark
+		  latestUpdateCount = currentUpdateCount;
+		}
+	}
 	
 	/**
 	 * Retrieve and display a list of the user's notes.
@@ -79,6 +111,8 @@ public class EvernoteClient extends Plugin {
 			filter.setOrder(NoteSortOrder.UPDATED.getValue());
 			filter.setAscending(true);
 			
+//			filter.setWords("updated:20140209T010000 resource:*");
+			
 			NotesMetadataResultSpec resultSpec = new NotesMetadataResultSpec();
 			resultSpec.setIncludeTitle(true);
 			resultSpec.setIncludeCreated(true);
@@ -93,6 +127,48 @@ public class EvernoteClient extends Plugin {
 		}
 		System.out.println();
 		System.out.println();
+	}
+
+	@Override
+	public String getPluginName() {
+		return _pluginName;
+	}
+
+	@Override
+	public String getExtensionName() {
+		return _extensionName;
+	}
+
+	@Override
+	public String getIconName() {
+		return _iconName;
+	}
+
+	/**
+	 * Intialize UserStore and NoteStore clients. During this step, we
+	 * authenticate with the Evernote web service. All of this code is boilerplate.
+	 */
+	@Override
+	public void init() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void run() {
+		// Debug code to be deleted from here
+		try {
+			pollForChanges();
+		} catch (EDAMUserException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (EDAMSystemException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	

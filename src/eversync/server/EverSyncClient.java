@@ -25,11 +25,12 @@ public class EverSyncClient {
 	 */
 	private void setRootPath() {
 		switch (_OS) {
-		case "Windows":
-			_rootPath = "%userprofile%\\documents";
+		case "Win32":
+			_rootPath = "~\\documents";
 			break;
-		case "MacIntel":
-			_rootPath = "~/Documents";
+		case "Mac":
+			//_rootPath = "~/Documents";
+			_rootPath = "~/EverSync_folder";
 			break;
 
 		default:

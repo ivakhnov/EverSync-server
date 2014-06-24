@@ -8,8 +8,9 @@ import java.util.UUID;
 import java.util.logging.Logger;
 import java.io.*; 
 
+import eversync.plugins.EvernotePlugin;
+import eversync.plugins.PluginManager;
 import eversync.server.EverSyncClient;
-import eversync.server.EvernoteClient;
 import eversync.server.MessageReflect;
 import eversync.server.Message.*;
 
@@ -17,17 +18,17 @@ import eversync.server.Message.*;
 public class Server  {
 	// Logger for debugging purposes
 	private static Logger log = Logger.getLogger(Server.class.getName());
-	
+
 	/**
 	 * The port on which the server will listen
 	 */
 	private static final int _serverPort = 8080;
-	
+
 	/**
 	 * A set of currently connected clients
 	 */
 	private static HashSet<String> _connectedClients = new HashSet<String>();
-	
+
 	/**
 	 * A hash map where the keys are the id's of the clients and values instances of the clients.
 	 * Used to store previously installed clients.
@@ -35,12 +36,13 @@ public class Server  {
 	 * Therefore, an instance of a client object is created only once.
 	 */
 	private static HashMap<String, EverSyncClient> _installedClients = new HashMap<String, EverSyncClient>();
-	
+
 	/**
-	 * A hash map where the keys are the names of the plugin's and the values are the instances of the plugin's.
+	 * Objects to control the plugins of EverSync.
+	 * The constructor of the plugin manager will not initialize the plugin objects. This 
+	 * has to be done through the installPlugins() method.
 	 */
-	private static HashMap<String, Plugin> _plugins = new HashMap<String, Plugin>();
-	
+	private static PluginManager _pluginManager = new PluginManager();
 	
 	/**
 	 * When a new client tries to connect to the client, they both have to handshake.
@@ -62,7 +64,7 @@ public class Server  {
 
 		String clientId;
 		EverSyncClient client;
-		
+
 		// Two possible response types are possible.
 		// Or it is the very first handshake with this client ever, 
 		// then it has to be registered in the server before any information exchange can happen.
@@ -76,17 +78,17 @@ public class Server  {
 			do {
 				clientId = UUID.randomUUID().toString();
 			} while (_installedClients.containsKey(clientId));
-			
+
 			client = new EverSyncClient(clientId);
 			installNewClient(client, conn);
 		} else {
 			throw new NoSuchElementException();
 		}
-		
+
 		client.setConn(conn);
 		return client;
 	}
-	
+
 	/**
 	 * When a new client is added to the system, an object of the EverSyncClient has to be instantiated with it.
 	 * Moreover, the client receives an id, and some additional data of the plugin's installed in the EverSync (on the server)
@@ -99,42 +101,38 @@ public class Server  {
 		InstallRequest installRequest = new InstallRequest();
 
 		conn.sendMsg(installRequest);
-		
+
 		// Receive the response with the information about the client.
 		Message res = conn.getMsg();
 		// Get the key values from the message
 		String os = res.getValue("OS");
 		// Send the values to the client object.
 		client.setOs(os);
-				
+
 		// Prepare and send the acknowledgement message with the assigned id of the client.
 		InstallAcknowledgement installAcknowledgement = 
 				new InstallAcknowledgement(client.getId(), client.getRootPath());
-		
+
 		conn.sendMsg(installAcknowledgement);
-		
+
 		// TO-DO
 		// HERE COMES THE PLUGIN INSTALLATION TO THE CLIENT
-		
+
 		// Finally add the client to the hashmap of the installed clients.
 		_installedClients.put(client.getId(), client);
 	}
 
-	
+
 	/**
 	 * The application main method used for initialization of the plugins and adding them to the server.
 	 * It also listens on the server port and spawns handler threads.
 	 */
 	public static void main (String[] args) throws Exception {
 		System.out.println("EverSync server started!");
-		System.out.println("Initializing plugins ...");
 		
-		System.out.println("-- Initializing Evernote plugin ...");
-		EvernoteClient evernote = new EvernoteClient("S=s1:U=8de6c:E=14b6ad2d7e3:C=1441321abe6:P=1cd:A=en-devtoken:V=2:H=1d6bfa88d4e429fe3918e4584561e51e");
-		_plugins.put("Evernote", evernote);
-		
-		System.out.println("All plugins initialized successfully!");
-		
+		// Install all plugins in the system.
+		_pluginManager.installPlugins();
+
 		ServerSocket serverSocket = new ServerSocket(_serverPort);
 		try {
 			while(true) {
@@ -144,13 +142,13 @@ public class Server  {
 		} finally {
 			serverSocket.close();
 		}
-		
+
 	}
-	
+
 	private static class ConnectionHandler extends Thread {
 		private String _clientID;
 		private EverSyncClient _client;
-		
+
 		/**
 		 * Initialize a new connection between the client and trigger the handshake mechanism between the server and the client
 		 * @param clientSocket
@@ -158,32 +156,43 @@ public class Server  {
 		 */
 		public ConnectionHandler(Socket clientSocket) throws IOException {			
 			// Create character streams for the socket.
-            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-            Connection connection = new Connection(in, out);
-            
-            try {
-            	_client = handShake(connection);
-            	_clientID = _client.getId();
-            	_connectedClients.add(_clientID);
-            } catch (Exception e) {
-            	e.printStackTrace();
-            }
+			BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+			DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
+			Connection connection = new Connection(in, out);
+
+			try {
+				_client = handShake(connection);
+				_clientID = _client.getId();
+				_connectedClients.add(_clientID);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			log.info("Client connected: " + _clientID);
 		}
-		
-		
+
+
 		public void run() {
 			// While the client is connected, listen to its messages
 			while (_connectedClients.contains(_clientID)) {
 				try {
 					Message msg = _client.getMsg();
 					String msgType = msg.getMsgType();
-					if (msgType.equals("Normal Request")) {
+					switch(msgType) {
+//						case "Sync Request":
+//						synchronize(_client, msg);
+//							break;
+					case "Normal Request":
 						MessageReflect.parseMessage(_client, msg);
-					} else {
+						break;
+					default:
 						log.severe("Received unsupported message type: '"+ msg.getMsgType() +"' from client: " + _clientID);
 					}
+
+//					if (msgType.equals("Normal Request")) {
+//						MessageReflect.parseMessage(_client, msg);
+//					} else {
+//						log.severe("Received unsupported message type: '"+ msg.getMsgType() +"' from client: " + _clientID);
+//					}
 				} catch (Exception e) {
 					// Handle the disconnection of a client.
 					_connectedClients.remove(_clientID);

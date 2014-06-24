@@ -1,6 +1,7 @@
 package eversync.server;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -9,9 +10,9 @@ import eversync.server.Message;
 public class Connection {
 	
 	private BufferedReader _in;
-	private PrintWriter _out;
+	private DataOutputStream _out;
 	
-	public Connection(BufferedReader in, PrintWriter out) {
+	public Connection(BufferedReader in, DataOutputStream out) {
 		_in = in;
 		_out = out;
 	}
@@ -29,6 +30,11 @@ public class Connection {
 	}
 	
 	public void sendMsg(Message msg) {
-		_out.println(msg.toString());
+		try {
+			_out.writeBytes(msg.toString() + '\n');
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

@@ -37,6 +37,14 @@ public abstract class Message {
 		}
 	}
 	
+	public void setKeyValue(String key, JSONObject value) {
+		try {
+			_MSG.put(key, value);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * To read one single value corresponding to a key in the message.
 	 */
@@ -65,7 +73,7 @@ public abstract class Message {
 
 	/**
 	 * Subclasses of the Message class. 
-	 * @author evgeni
+	 * @author Evgeni
 	 *
 	 */
 	public static class HandshakeRequest extends Message {
@@ -91,6 +99,12 @@ public abstract class Message {
 	public static class NormalResponse extends Message {
 		public NormalResponse() {
 			super.setKeyValue("msgType", "Normal Response");
+		}
+	}
+	
+	public static class SyncResponse extends Message {
+		public SyncResponse() {
+			super.setKeyValue("msgType", "Sync Response");
 		}
 	}
 }
