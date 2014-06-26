@@ -10,6 +10,12 @@ import eversync.server.Message.*;
 
 public class MessageReflect {
 
+	private static FileEventHandler _fileEventHandler;
+
+	public MessageReflect(FileEventHandler fileEventHandler) {
+		_fileEventHandler = fileEventHandler;
+	}
+
 	public void getLinkedItems(EverSyncClient client, String itemLocation, String itemName) throws JSONException {
 		System.out.println("Test variable parsing: " + itemLocation + " " + itemName);
 		NormalResponse response = new NormalResponse();
@@ -37,12 +43,15 @@ public class MessageReflect {
 	 * @param filePath: Path to the file (starting from the root directory which is being watched).
 	 * @param lastModified: UNIX timestamp when the file has been modified.
 	 */
-	public static void addFile(EverSyncClient client,String filePath, String lastModified) {
-		System.out.println("--- SYNC ---");
+	public static void addFile(EverSyncClient client, String fileName, String filePath, String lastModified) {
+		System.out.println("--- SYNC addFile ---");
 		System.out.println("clientID: " + client.getId());
 		System.out.println("filePath: " + filePath);
 		System.out.println("lastModified: " + lastModified);
-		System.out.println("--- SYNC ---");
+		System.out.println("--- SYNC addFile ---");
+
+		// Handle the event of adding a file
+		_fileEventHandler.addFile(client, fileName, filePath, lastModified);
 
 		//Prepare and send a response message
 		SyncResponse syncResp = new SyncResponse();
@@ -73,18 +82,21 @@ public class MessageReflect {
 				}
 				break;
 			case "addFile": {
+				String fileName = params.getValue("fileName");
 				String filePath = params.getValue("filePath");
 				String lastModified = params.getValue("lastModified");
-				addFile(client, filePath, lastModified);
+				addFile(client, fileName, filePath, lastModified);
 				}
 				break;
 			case "deleteFile": {
+				String fileName = params.getValue("fileName");
 				String filePath = params.getValue("filePath");
 				String lastModified = params.getValue("lastModified");
 				//deleteFile(client, filePath, lastModified);
 				}
 				break;
 			case "modifyFile": {
+				String fileName = params.getValue("fileName");
 				String filePath = params.getValue("filePath");
 				String lastModified = params.getValue("lastModified");
 				System.out.println("modifyFile");

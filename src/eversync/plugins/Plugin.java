@@ -1,5 +1,8 @@
 package eversync.plugins;
 
+import eversync.iServer.IServerManagerInterface;
+import eversync.server.FileEventHandler;
+
 public interface Plugin {
 		
 	public String getPluginName();
@@ -8,7 +11,7 @@ public interface Plugin {
 	
 	public String getIconName();
 	
-	public void init();
+	public void init(FileEventHandler fileEventHandler);
 	
 	public void run();
 }

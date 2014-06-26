@@ -28,11 +28,16 @@ import com.evernote.edam.type.Tag;
 import com.evernote.thrift.TException;
 import com.evernote.thrift.transport.TTransportException;
 
+import eversync.iServer.IServerManagerInterface;
+import eversync.server.FileEventHandler;
+
 public class EvernotePlugin implements Plugin {
 	
-	public String _pluginName;
-	public String _extensionName;
-	public String _iconName;
+	private String _pluginName;
+	private String _extensionName;
+	private String _iconName;
+	
+	private FileEventHandler _fileEventHandler;
 	
 	private UserStoreClient userStore;
 	private NoteStoreClient noteStore;
@@ -149,9 +154,8 @@ public class EvernotePlugin implements Plugin {
 	 * authenticate with the Evernote web service. All of this code is boilerplate.
 	 */
 	@Override
-	public void init() {
-		// TODO Auto-generated method stub
-		
+	public void init(FileEventHandler fileEventHandler) {
+		_fileEventHandler = fileEventHandler;
 	}
 
 	@Override

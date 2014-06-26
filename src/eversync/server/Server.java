@@ -8,7 +8,9 @@ import java.util.UUID;
 import java.util.logging.Logger;
 import java.io.*; 
 
+import eversync.iServer.IServerManagerEverSyncClient;
 import eversync.iServer.IServerManagerInterface;
+import eversync.iServer.IServerManagerServicePlugin;
 import eversync.plugins.EvernotePlugin;
 import eversync.plugins.PluginManager;
 import eversync.server.EverSyncClient;
@@ -25,13 +27,16 @@ public class Server  {
 	 */
 	private static final int _serverPort = 8080;
 	
-	/**
-	 * Controls the set of all the connected clients
-	 */
-	private static EverSyncClientManager _clientManager = new EverSyncClientManager();
+	private final static FileEventHandler _fileEventHandler = new FileEventHandler();
+	
+	private final static MessageReflect _messageReflect = new MessageReflect(_fileEventHandler);
+	
+	private final static PluginManager _pluginManager = new PluginManager(_fileEventHandler);
+	private final static EverSyncClientManager _clientManager = new EverSyncClientManager();
 
-	//private static IServerManagerInterface _iServerManagerInterface;
-	private static PluginManager _pluginManager = new PluginManager();
+	// TOTO describe Callbacks
+	private final static IServerManagerInterface _iServerManagerServicePlugin = new IServerManagerServicePlugin();
+	private final static IServerManagerInterface _iServerManagerEverSyncClient = new IServerManagerEverSyncClient();
 
 
 	/**
@@ -39,7 +44,13 @@ public class Server  {
 	 * It also listens on the server port and spawns handler threads.
 	 */
 	public static void main (String[] args) throws Exception {
-		System.out.println("EverSync server started!");
+		_fileEventHandler.init(
+			_pluginManager,
+			_clientManager,
+			_iServerManagerServicePlugin,
+			_iServerManagerEverSyncClient);
+		
+		log.info("EverSync server started!");
 		
 		// Install all plugins in the system.
 		_pluginManager.installPlugins();
@@ -92,7 +103,7 @@ public class Server  {
 //						synchronize(_client, msg);
 //							break;
 					case "Normal Request":
-						MessageReflect.parseMessage(_client, msg);
+						_messageReflect.parseMessage(_client, msg);
 						break;
 					default:
 						log.severe("Received unsupported message type: '"+ msg.getMsgType() +"' from client: " + _clientID);

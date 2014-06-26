@@ -15,25 +15,24 @@ public class IServerManagerSuper {
 	// Logger for debugging purposes
 	protected static Logger log = Logger.getLogger(Server.class.getName());
 	
-	private IServerInterface _iServer;
-	private Individual _creator;
+	private static IServerInterface _iServer;
+	private static Individual _creator;
 	
 	// Constructor
 	public IServerManagerSuper() {
-		this._iServer = new IServerCCO();
-		this._creator = _iServer.createIndividual("EverSync");
+		_iServer = new IServerCCO();
+		_creator = _iServer.createIndividual("EverSync");
 	}
 
-	protected DigitalObject createFile(String hostId, String fileName, String fileId) throws CardinalityConstraintException {
+	protected DigitalObject createFile(String fileName, String fileId) throws CardinalityConstraintException {
 		DigitalObject fileObject = _iServer.createDigitalObject(fileName, fileId, _creator);
-		fileObject.addProperty("hostId", hostId);
 		return fileObject;
 	}
 	
 
 	
 	public void linkObjects(String localId, String service, String serviceId) {
-//		_iServer.getDigitalObject(name)
+//		_iServer.getDigitalObject(id);
 //		_iServer.createNavigationalLink(source, target)
 		
 //		DigitalObject obj = new DigitalObject(localId);
