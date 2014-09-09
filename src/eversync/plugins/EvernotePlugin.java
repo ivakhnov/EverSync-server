@@ -161,18 +161,18 @@ public class EvernotePlugin implements Plugin {
 	@Override
 	public void run() {
 		// Debug code to be deleted from here
-		try {
-			pollForChanges();
-		} catch (EDAMUserException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (EDAMSystemException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			pollForChanges();
+//		} catch (EDAMUserException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (EDAMSystemException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (TException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 	

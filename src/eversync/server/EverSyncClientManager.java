@@ -92,11 +92,17 @@ public class EverSyncClientManager {
 		} else {
 			throw new NoSuchElementException();
 		}
-		// Associate the connection with the client
-		client.setConn(conn);
-		// Bookkeeping
-		_connectedClients.add(client.getId());
-		
+		// Associate the connection with the client.
+		// Note that besides the regular connection with the server in order to interchange messages,
+		// a client can also open additional connections in order to stream files to and from the srver.
+		// Therefore, there is a check if a client is already connected.
+		if(client.isConnected()) {
+			client.addStreamConnection(conn);
+		} else {
+			client.setConn(conn);
+			// Bookkeeping
+			_connectedClients.add(client.getId());
+		}
 		return client;
 	}
 
@@ -114,7 +120,12 @@ public class EverSyncClientManager {
 	 * it has to be removed from the list of connected clients.
 	 * @param clientID
 	 */
-	public void disconnected(String clientID) {
-		_connectedClients.remove(clientID);
+	public void disconnected(EverSyncClient client) {
+		client.resetConn();
+		_connectedClients.remove(client.getId());
+	}
+
+	public EverSyncClient getClient(String clientId) {
+		return _installedClients.get(clientId);
 	}
 }

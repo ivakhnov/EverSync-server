@@ -1,5 +1,10 @@
 package eversync.server;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Method;
 
 import org.json.JSONArray;
@@ -16,9 +21,9 @@ public class MessageReflect {
 		_fileEventHandler = fileEventHandler;
 	}
 
-	public void getLinkedItems(EverSyncClient client, String itemLocation, String itemName) throws JSONException {
-		System.out.println("Test variable parsing: " + itemLocation + " " + itemName);
-		NormalResponse response = new NormalResponse();
+	private void getLinkedFiles(EverSyncClient client, String fileName, String filePath) throws JSONException {
+		System.out.println("Test variable parsing: " + filePath + " " + fileName);
+		NormalMessage response = new NormalMessage();
 		response.setKeyValue("methodName", "showLinkedItems");
 
 		JSONObject nestedMsg = new JSONObject();
@@ -31,41 +36,19 @@ public class MessageReflect {
 		nestedMsg.put("FileSystem", list);
 		nestedMsg.put("evernote", list);
 		nestedMsg.put("facebook", list);
+		
+		_fileEventHandler.getLinkedFiles(client, fileName, filePath);
 
 		response.setKeyValue("items", nestedMsg);
 		client.sendMsg(response);
 	}
 
-	/**
-	 * A new file has been added to the watched directory on a client.
-	 * The id of this file (path + client id) has to be stored in the iServer.
-	 * @param client: Internal object which represents the involved client.
-	 * @param filePath: Path to the file (starting from the root directory which is being watched).
-	 * @param lastModified: UNIX timestamp when the file has been modified.
-	 */
-	public static void addFile(EverSyncClient client, String fileName, String filePath, String lastModified) {
-		System.out.println("--- SYNC addFile ---");
-		System.out.println("clientID: " + client.getId());
-		System.out.println("filePath: " + filePath);
-		System.out.println("lastModified: " + lastModified);
-		System.out.println("--- SYNC addFile ---");
-
-		// Handle the event of adding a file
-		_fileEventHandler.addFile(client, fileName, filePath, lastModified);
-
-		//Prepare and send a response message
-		SyncResponse syncResp = new SyncResponse();
-		client.sendMsg(syncResp);
-	}
-
-	public static void parseMessage(EverSyncClient client, Message message) {
+	public void parseMessage(EverSyncClient client, Message message) {
 		System.out.println("Parsing the message...");
 		System.out.println(message);
 
 		// Message dispatcher, i.e. using Java Reflection to call a method given its name (simple JSON-RPC)
-		try {			
-			Class cls = Class.forName("eversync.server.MessageReflect");
-			Object obj = cls.newInstance();
+		try {
 
 			Message params = message.getValues("params");
 
@@ -74,18 +57,17 @@ public class MessageReflect {
 
 			// For safety reasons, use some kind of indirection through a switch.
 			switch (methodName) {
-			case "getLinkedItems": {
-				String itemLocation = params.getValue("itemLocation");
-				String itemName = params.getValue("itemName");
-				method = cls.getDeclaredMethod("getLinkedItems", new Class[]{EverSyncClient.class, String.class, String.class});
-				method.invoke(obj, client, itemLocation, itemName);
+			case "getLinkedFiles": {
+				String fileName = params.getValue("fileName");
+				String filePath = params.getValue("filePath");
+				getLinkedFiles(client, fileName, filePath);
 				}
 				break;
 			case "addFile": {
 				String fileName = params.getValue("fileName");
 				String filePath = params.getValue("filePath");
 				String lastModified = params.getValue("lastModified");
-				addFile(client, fileName, filePath, lastModified);
+				_fileEventHandler.addFile(client, fileName, filePath);
 				}
 				break;
 			case "deleteFile": {
@@ -96,11 +78,11 @@ public class MessageReflect {
 				}
 				break;
 			case "modifyFile": {
+				System.out.println("modifyFile");
 				String fileName = params.getValue("fileName");
 				String filePath = params.getValue("filePath");
 				String lastModified = params.getValue("lastModified");
-				System.out.println("modifyFile");
-				//modifyFile(client, filePath, lastModified);
+				_fileEventHandler.modifyFile(client, fileName, filePath);
 				}
 				break;
 			default:

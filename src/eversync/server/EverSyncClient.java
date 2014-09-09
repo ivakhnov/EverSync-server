@@ -1,23 +1,32 @@
 package eversync.server;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.logging.Logger;
 
 public class EverSyncClient {
+	// Logger for debugging purposes
+	private static Logger log = Logger.getLogger(Server.class.getName());
 	
 	/**
 	 * Private members
 	 */
 	private final String _ID;
 	private String _OS;
-	private Connection _conn;
+	private Connection _conn = null;
 	private String _rootPath;
-	
+	private Queue<Connection> _streamConns;
+	private Queue<byte[]> _streamData;
+
 	/**
 	 * Constructor
 	 * @param OS: String with the name of the operating system of the client
 	 */
 	public EverSyncClient(String Id) {
 		_ID = Id;
+		_streamConns = new LinkedList<Connection>();
+		_streamData = new LinkedList<byte[]>();
 	}
 
 	/**
@@ -49,12 +58,31 @@ public class EverSyncClient {
 		return _ID;
 	}
 	
-	
+	public Boolean isConnected() {
+		return (_conn != null);
+	}
+
+	public Boolean hasStreamConnections() {
+		return (_streamConns.size() != 0);
+	}
+
 	/**
 	 * Setters
 	 */
 	public void setConn(Connection conn) {
 		_conn = conn;
+	}
+
+	public void resetConn() {
+		_conn = null;
+	}
+
+	/**
+	 * Besides the regular connection with the server, a client can create multiple temporary connections to stream files.
+	 * @param conn
+	 */
+	public void addStreamConnection(Connection conn) {
+		_streamConns.add(conn);
 	}
 
 	public void setOs(String os) {
@@ -74,5 +102,29 @@ public class EverSyncClient {
 	
 	public void sendMsg(Message msg) {
 		_conn.sendMsg(msg);
+	}
+
+	/**
+	 * Reads a file from the actual client as a byteArray (i.e. upload to server)
+	 * @param fileSize
+	 * @return
+	 * @throws IOException 
+	 */
+	public byte[] getFile(int fileSize) throws IOException {
+		return _conn.getByteArray(fileSize);
+	}
+
+	public void sendFile(Message downloadReq, byte[] file) {
+		_streamData.add(file);
+
+		if (isConnected()) {
+			sendMsg(downloadReq);
+		}
+	}
+
+	public void streamData() {
+		Connection streamConn = _streamConns.poll();
+		byte[] file = _streamData.poll();
+		streamConn.sendByteArray(file);
 	}
 }

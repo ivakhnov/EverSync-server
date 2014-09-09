@@ -13,30 +13,32 @@ import eversync.server.Server;
 
 public class IServerManagerSuper {
 	// Logger for debugging purposes
-	protected static Logger log = Logger.getLogger(Server.class.getName());
-	
-	private static IServerInterface _iServer;
-	private static Individual _creator;
-	
-	// Constructor
-	public IServerManagerSuper() {
-		_iServer = new IServerCCO();
-		_creator = _iServer.createIndividual("EverSync");
-	}
+	protected static final Logger log = Logger.getLogger(Server.class.getName());
 
-	protected DigitalObject createFile(String fileName, String fileId) throws CardinalityConstraintException {
+	// Singletons
+	protected static final IServerInterface _iServer = new IServerCCO();
+	private static final Individual _creator = _iServer.createIndividual("EverSync");
+
+	protected DigitalObject addFile(String fileName, String fileId) throws CardinalityConstraintException {
+//		DigitalObject potentialLinkedFile = _iServer.getDigitalObject(fileName);
 		DigitalObject fileObject = _iServer.createDigitalObject(fileName, fileId, _creator);
+//		if (potentialLinkedFile != null) {
+//			linkFiles(potentialLinkedFile, fileObject);
+//		}
 		return fileObject;
 	}
-	
 
-	
-	public void linkObjects(String localId, String service, String serviceId) {
-//		_iServer.getDigitalObject(id);
-//		_iServer.createNavigationalLink(source, target)
+	private void linkFiles(DigitalObject source, DigitalObject target) {
+		try {
+			_iServer.createNavigationalLink(source, target);
+		} catch (CardinalityConstraintException e) {
+			log.severe("Could not create a link between two files!");
+			e.printStackTrace();
+		}
+	}
+
+	public void getLinkedFiles() {
 		
-//		DigitalObject obj = new DigitalObject(localId);
-//		obj.addProperty(service, serviceId);
 	}
 	
 	/**

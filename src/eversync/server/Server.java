@@ -44,6 +44,11 @@ public class Server  {
 	 * It also listens on the server port and spawns handler threads.
 	 */
 	public static void main (String[] args) throws Exception {
+		// For debugging purposes, we start each time with a new, empty database
+		// Therefore, delete the existing one
+		File dbFile = new File("iserver.db4o");
+		dbFile.delete();
+
 		_fileEventHandler.init(
 			_pluginManager,
 			_clientManager,
@@ -78,12 +83,13 @@ public class Server  {
 		 */
 		public ConnectionHandler(Socket clientSocket) throws IOException {			
 			// Create character streams for the socket.
-			BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+			InputStream in = clientSocket.getInputStream();
 			DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
 			Connection connection = new Connection(in, out);
 
 			try {
 				_client = _clientManager.handShake(connection);
+				_clientID = _client.getId();
 			} catch (Exception e) {
 				log.info("A client tried to connect without success..");
 				e.printStackTrace();
@@ -93,27 +99,34 @@ public class Server  {
 
 
 		public void run() {
-			// While the client is connected, listen to its messages
-			while (_clientManager.checkConnection(_clientID)) {
-				try {
-					Message msg = _client.getMsg();
-					String msgType = msg.getMsgType();
-					switch(msgType) {
-//					case "Sync Request":
-//						synchronize(_client, msg);
-//							break;
-					case "Normal Request":
-						_messageReflect.parseMessage(_client, msg);
+			// If the client has stream connection(s) then it means that this thread has been started by a creation
+			// of a new stream connection. In this case, we don't go to the listening loop because additional stream 
+			// connections are only used to stream files, not to listen for messages.
+			if(_client.hasStreamConnections()) {
+				_client.streamData();
+			} else {
+				// While the client is connected, listen to its messages.
+				while (_clientManager.checkConnection(_clientID)) {
+					try {
+						Message msg = _client.getMsg();
+						String msgType = msg.getMsgType();
+						switch(msgType) {
+	//					case "Sync Request":
+	//						synchronize(_client, msg);
+	//							break;
+						case "Normal Request":
+							_messageReflect.parseMessage(_client, msg);
+							break;
+						default:
+							log.severe("Received unsupported message type: '"+ msg.getMsgType() +"' from client: " + _clientID);
+						}
+	
+					} catch (Exception e) {
+						// Handle the disconnection of a client.
+						_clientManager.disconnected(_client);
+						log.info("Client disconnected: " + _clientID);
 						break;
-					default:
-						log.severe("Received unsupported message type: '"+ msg.getMsgType() +"' from client: " + _clientID);
 					}
-
-				} catch (Exception e) {
-					// Handle the disconnection of a client.
-					_clientManager.disconnected(_clientID);
-					log.info("Client disconnected: " + _clientID);
-					break;
 				}
 			}
 		}

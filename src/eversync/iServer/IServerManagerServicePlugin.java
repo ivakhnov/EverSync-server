@@ -6,9 +6,9 @@ import org.st.iserver.DigitalObject;
 public class IServerManagerServicePlugin extends IServerManagerSuper implements IServerManagerInterface {
 	
 	@Override
-	public void addFile(String serviceName, String fileName, String fileId, String lastModified) {
+	public void addFile(String serviceName, String fileName, String fileId) {
 		try {
-			DigitalObject fileObject = super.createFile(fileName, fileId);
+			DigitalObject fileObject = super.addFile(fileName, fileId);
 			fileObject.addProperty("hostId", serviceName);
 			fileObject.addProperty("hostType", "ExternalService");
 		} catch (CardinalityConstraintException e) {
@@ -18,7 +18,7 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 	}
 
 	@Override
-	public void getFiles() {
+	public void getLinkedFiles() {
 		// TODO Auto-generated method stub
 		
 	}
@@ -30,7 +30,7 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 	}
 
 	@Override
-	public void updateFile(String deviceId, String fileName) {
+	public void modifyFile(String deviceId, String fileName) {
 		// TODO Auto-generated method stub
 		
 	}

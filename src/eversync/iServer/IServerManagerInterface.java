@@ -2,11 +2,11 @@ package eversync.iServer;
 
 public interface IServerManagerInterface {
 
-	public void addFile(String deviceId, String fileName, String fileURI, String lastModified);
+	public void addFile(String deviceId, String fileName, String fileURI);
 	
 	public void deleteFile(String fileName);
 
-	public void getFiles();
+	public void getLinkedFiles();
 	
-	public void updateFile(String deviceId, String fileName);
+	public void modifyFile(String deviceId, String fileName);
 }

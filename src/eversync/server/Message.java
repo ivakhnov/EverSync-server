@@ -76,6 +76,10 @@ public abstract class Message {
 	 * @author Evgeni
 	 *
 	 */
+	public static class EmptyMessage extends Message {
+		public EmptyMessage() {}
+	}
+
 	public static class HandshakeRequest extends Message {
 		public HandshakeRequest() {
 			super.setKeyValue("msgType", "Handshake Request");
@@ -96,15 +100,31 @@ public abstract class Message {
 		}
 	}
 	
-	public static class NormalResponse extends Message {
-		public NormalResponse() {
-			super.setKeyValue("msgType", "Normal Response");
+	public static class NormalMessage extends Message {
+		public NormalMessage() {
+			super.setKeyValue("msgType", "Normal Message");
 		}
 	}
 	
 	public static class SyncResponse extends Message {
 		public SyncResponse() {
 			super.setKeyValue("msgType", "Sync Response");
+		}
+	}
+
+	public static class UploadRequest extends Message {
+		public UploadRequest(String filePath) {
+			super.setKeyValue("msgType", "Normal Message");
+			super.setKeyValue("methodName", "uploadFile");
+			super.setKeyValue("filePath", filePath);
+		}
+	}
+
+	public static class DownloadRequest extends Message {
+		public DownloadRequest(String filePath, int fileSize) {
+			super.setKeyValue("msgType", "Download Request");
+			super.setKeyValue("filePath", filePath);
+			super.setKeyValue("fileSize", Integer.toString(fileSize));
 		}
 	}
 }
