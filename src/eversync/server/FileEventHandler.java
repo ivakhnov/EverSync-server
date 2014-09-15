@@ -53,7 +53,7 @@ public class FileEventHandler {
 		_iServerManagerEverSyncClient.addFile(client.getId(), fileName, filePath);
 		// TODO
 		// detect existing files with the same name
-		// normally each client and/or service has at most one file with the same name 
+		// normally each client and/or service has at most one file with the same name and path
 		// link the new file with the existing files (i.e. on each client or service)
 		
 		//Prepare and send a response message

@@ -1,4 +1,4 @@
-package eversync.plugins;
+package eversync.plugins.Evernote;
 
 import java.util.List;
 
@@ -29,19 +29,14 @@ import com.evernote.thrift.TException;
 import com.evernote.thrift.transport.TTransportException;
 
 import eversync.iServer.IServerManagerInterface;
+import eversync.plugins.Plugin;
+import eversync.plugins.PluginInterface;
 import eversync.server.FileEventHandler;
 
-public class EvernotePlugin implements Plugin {
-	
-	private String _pluginName;
-	private String _extensionName;
-	private String _iconName;
-	
-	private FileEventHandler _fileEventHandler;
+public class EvernotePlugin extends Plugin implements PluginInterface {
 	
 	private UserStoreClient userStore;
 	private NoteStoreClient noteStore;
-	
 	
 	/**
 	 * Constructor
@@ -51,9 +46,7 @@ public class EvernotePlugin implements Plugin {
 	 * - you can copy it straight into your application.
 	 */
 	public EvernotePlugin(String token) throws Exception {
-		_pluginName = "Evernote";
-		_extensionName = "extensieNaam";
-		_iconName = "icoonNaam";
+		super._pluginName = "Evernote";
 		
 		// Set up the UserStore client and check that we can speak to the server
 		EvernoteAuth evernoteAuth = new EvernoteAuth(EvernoteService.SANDBOX, token);
@@ -134,28 +127,13 @@ public class EvernotePlugin implements Plugin {
 		System.out.println();
 	}
 
-	@Override
-	public String getPluginName() {
-		return _pluginName;
-	}
-
-	@Override
-	public String getExtensionName() {
-		return _extensionName;
-	}
-
-	@Override
-	public String getIconName() {
-		return _iconName;
-	}
-
 	/**
 	 * Intialize UserStore and NoteStore clients. During this step, we
 	 * authenticate with the Evernote web service. All of this code is boilerplate.
 	 */
 	@Override
 	public void init(FileEventHandler fileEventHandler) {
-		_fileEventHandler = fileEventHandler;
+		super._fileEventHandler = fileEventHandler;
 	}
 
 	@Override

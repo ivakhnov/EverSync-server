@@ -1,0 +1,5 @@
+/**
+ * 	Associate the plugin icon
+ */
+
+.jqueryFileTree LI.plugin_evernote { background: url(icon.png) left top no-repeat; }

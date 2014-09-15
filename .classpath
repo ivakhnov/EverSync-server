@@ -5,7 +5,8 @@
 	<classpathentry kind="lib" path="libs/org.json-20120521.jar"/>
 	<classpathentry kind="lib" path="libs/evernote-api/evernote-api-1.25.1.jar"/>
 	<classpathentry kind="lib" path="libs/evernote-api/evernote-api-1.25.1-sources.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/iServerCCOWithAssociations"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/iServer"/>
+	<classpathentry kind="lib" path="/iServer/lib/sigtec.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

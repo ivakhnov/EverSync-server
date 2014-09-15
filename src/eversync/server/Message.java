@@ -1,7 +1,11 @@
 package eversync.server;
 
+import java.util.List;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import eversync.plugins.PluginInterface;
 
 public abstract class Message {
 	
@@ -93,10 +97,22 @@ public abstract class Message {
 	}
 	
 	public static class InstallAcknowledgement extends Message {
-		public InstallAcknowledgement(String clientId, String rootPath) {
+		public InstallAcknowledgement(String clientId, String rootPath, List<PluginInterface> plugins) {
 			super.setKeyValue("msgType", "Client Installation Acknowledgement");
 			super.setKeyValue("clientId", clientId);
 			super.setKeyValue("rootPath", rootPath);
+			
+			JSONObject installFiles = new JSONObject(); 
+			try {
+				for (PluginInterface plugin : plugins) {
+					installFiles.put(plugin.getPluginName(), plugin.getInstallationFiles());
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			super.setKeyValue("installationFiles", installFiles);
 		}
 	}
 	

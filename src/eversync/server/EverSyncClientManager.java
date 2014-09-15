@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+import eversync.plugins.PluginManager;
 import eversync.server.Message.HandshakeRequest;
 import eversync.server.Message.InstallAcknowledgement;
 import eversync.server.Message.InstallRequest;
@@ -44,8 +45,9 @@ public class EverSyncClientManager {
 
 		// Prepare and send the acknowledgement message with the assigned id of the client.
 		InstallAcknowledgement installAcknowledgement = 
-				new InstallAcknowledgement(client.getId(), client.getRootPath());
+				new InstallAcknowledgement(client.getId(), client.getRootPath(), PluginManager.getAllPlugins());
 
+		System.out.println("MESSAGE ==> " + installAcknowledgement);
 		conn.sendMsg(installAcknowledgement);
 
 		// TO-DO

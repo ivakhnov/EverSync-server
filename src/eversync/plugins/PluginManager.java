@@ -1,10 +1,14 @@
 package eversync.plugins;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Logger;
 
 import eversync.iServer.IServerManagerInterface;
 import eversync.iServer.IServerManagerServicePlugin;
+import eversync.plugins.Evernote.EvernotePlugin;
 import eversync.server.FileEventHandler;
 import eversync.server.Server;
 
@@ -15,7 +19,7 @@ public class PluginManager {
 	/**
 	 * A hash map where the keys are the names of the plugin's and the values are the instances of the plugin's.
 	 */
-	private static HashMap<String, Plugin> _plugins = new HashMap<String, Plugin>();
+	private static HashMap<String, PluginInterface> _plugins = new HashMap<String, PluginInterface>();
 	
 	// TODO description of why
 	private final FileEventHandler _fileEventHandler;
@@ -29,16 +33,18 @@ public class PluginManager {
 	 * Installation of a plugin consists of initializing it, make it run and 
 	 * finally adding it to the HashMap to hold the object.
 	 * @param pluginName
-	 * @param plugin
+	 * @param pluginInterface
 	 */
-	private void installPlugin(String pluginName, Plugin plugin) {
-		plugin.init(_fileEventHandler);
-		plugin.run();
-		_plugins.put(pluginName, plugin);
+	private void installPlugin(String pluginName, PluginInterface pluginInterface) {
+		pluginInterface.init(_fileEventHandler);
+		pluginInterface.run();
+		_plugins.put(pluginName, pluginInterface);
 	}
 
-
-
+	/**
+	 * Install all the plugins on the server.
+	 * @throws Exception
+	 */
 	public void installPlugins() throws Exception {
 		log.info("Initializing plugins ...");
 
@@ -47,7 +53,13 @@ public class PluginManager {
 		installPlugin("Evernote", evernote);
 
 		log.info("All plugins initialized successfully!");
-		
 	}
 
+	/**
+	 * Return a list of all the installed plugins
+	 * @return
+	 */
+	public static List<PluginInterface> getAllPlugins() {
+		return new ArrayList<PluginInterface>(_plugins.values());
+	}
 }
