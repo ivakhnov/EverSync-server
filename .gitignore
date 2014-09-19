@@ -13,3 +13,6 @@ hs_err_pid*
 
 # Ignore the database file
 *.db4o
+
+# Ignore the following directories
+bin/

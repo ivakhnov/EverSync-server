@@ -30,21 +30,10 @@ public class EverSyncClient {
 	}
 
 	/**
-	 * Depending on the operating system of the client, the root path to the synchronisation folder will be different
+	 * The path to the folder on the client which will be synchronized.
 	 */
 	private void setRootPath() {
-		switch (_OS) {
-		case "Win32":
-			_rootPath = "~\\documents";
-			break;
-		case "Mac":
-			//_rootPath = "~/Documents";
-			_rootPath = "~/EverSync_folder";
-			break;
-
-		default:
-			throw new RuntimeException("Operating system of the client not supported: " + _OS);
-		}
+		_rootPath = "~/EverSync_folder";
 	}
 	
 	/**
