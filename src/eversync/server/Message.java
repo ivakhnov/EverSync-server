@@ -1,7 +1,9 @@
 package eversync.server;
 
 import java.util.List;
+import java.util.Set;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -149,6 +151,22 @@ public abstract class Message {
 			super.setKeyValue("msgType", "Normal Message");
 			super.setKeyValue("methodName", "openFile");
 			super.setKeyValue("filePath", filePath);
+		}
+	}
+	
+	public static class InstalledClientsNotification extends Message {
+		public InstalledClientsNotification(Set<String> clientsSet) {
+			super.setKeyValue("msgType", "Normal Message");
+			super.setKeyValue("methodName", "setInstalledClients");
+			super.setKeyValue("clients", clientsSet.toString());
+		}
+	}
+	
+	public static class ConnectedClientsNotification extends Message {
+		public ConnectedClientsNotification(Set<String> clientsSet) {
+			super.setKeyValue("msgType", "Normal Message");
+			super.setKeyValue("methodName", "setConnectedClients");
+			super.setKeyValue("clients", clientsSet.toString());
 		}
 	}
 }

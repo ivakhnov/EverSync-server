@@ -3,12 +3,15 @@ package eversync.server;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.UUID;
 
 import eversync.plugins.PluginManager;
 import eversync.server.Message.HandshakeRequest;
 import eversync.server.Message.InstallAcknowledgement;
 import eversync.server.Message.InstallRequest;
+import eversync.server.Message.InstalledClientsNotification;
+import eversync.server.Message.ConnectedClientsNotification;
 
 public class EverSyncClientManager {
 
@@ -49,9 +52,6 @@ public class EverSyncClientManager {
 
 		System.out.println("MESSAGE ==> " + installAcknowledgement);
 		conn.sendMsg(installAcknowledgement);
-
-		// TO-DO
-		// HERE COMES THE PLUGIN INSTALLATION TO THE CLIENT
 
 		// Finally add the client to the hashmap of the installed clients.
 		_installedClients.put(client.getId(), client);
@@ -104,6 +104,11 @@ public class EverSyncClientManager {
 			client.setConn(conn);
 			// Bookkeeping
 			_connectedClients.add(client.getId());
+			// Finally, notify the others that a new client has been connected (and/or installed).
+			InstalledClientsNotification installedMsg = new InstalledClientsNotification(_installedClients.keySet());
+			ConnectedClientsNotification connectedMsg = new ConnectedClientsNotification(_connectedClients);
+			broadcast(installedMsg);
+			broadcast(connectedMsg);
 		}
 		return client;
 	}
@@ -129,5 +134,16 @@ public class EverSyncClientManager {
 
 	public EverSyncClient getClient(String clientId) {
 		return _installedClients.get(clientId);
+	}
+	
+	/**
+	 * Broadcast a massega to all the clients
+	 * @param msg
+	 */
+	public void broadcast(Message msg) {
+		for(String connectedClientId : _connectedClients) {
+			EverSyncClient client = _installedClients.get(connectedClientId);
+			client.sendMsg(msg);
+		}
 	}
 }
