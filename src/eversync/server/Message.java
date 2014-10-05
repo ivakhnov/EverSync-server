@@ -136,11 +136,19 @@ public abstract class Message {
 		}
 	}
 
-	public static class DownloadRequest extends Message {
-		public DownloadRequest(String filePath, int fileSize) {
-			super.setKeyValue("msgType", "Download Request");
+	public static class DownloadPreparation extends Message {
+		public DownloadPreparation(String filePath, int fileSize) {
+			super.setKeyValue("msgType", "Download Preparation");
 			super.setKeyValue("filePath", filePath);
 			super.setKeyValue("fileSize", Integer.toString(fileSize));
+		}
+	}
+	
+	public static class OpenFileRequest extends Message {
+		public OpenFileRequest(String filePath) {
+			super.setKeyValue("msgType", "Normal Message");
+			super.setKeyValue("methodName", "openFile");
+			super.setKeyValue("filePath", filePath);
 		}
 	}
 }

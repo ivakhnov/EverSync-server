@@ -6,8 +6,13 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.st.iserver.DigitalObject;
+import org.st.iserver.Entity;
 
 import eversync.iServer.IServerManagerInterface;
 import eversync.plugins.PluginManager;
@@ -39,8 +44,23 @@ public class FileEventHandler {
 		_iServerManagerEverSyncClient = iServerManagerEverSyncClient;
 	}
 	
-	public void getLinkedFiles(EverSyncClient client, String fileName, String filePath) {
-		_iServerManagerEverSyncClient.getLinkedFiles();
+	public JSONObject getLinkedFiles(EverSyncClient client, String fileName, String filePath) throws JSONException {
+		String location = filePath.substring(0, filePath.indexOf(':'));
+		
+		filePath = filePath.substring(filePath.indexOf(':') + 1, filePath.length());
+		JSONObject results = new JSONObject();
+		// Collect all the linked entities
+		JSONArray clientFiles = _iServerManagerEverSyncClient.getLinkedFiles(filePath);
+		results.put("MyDevices", clientFiles);
+		/*
+		 * for (each plugin) {
+		 * 		string pluginname = plugin.getname
+		 * 		iservermanagerserviceplugin.getLinkedfiles
+		 * 		
+		 * }
+		 */
+		
+		return results;
 	}
 
 	public void addFile(EverSyncClient client, String fileName, String filePath) {
@@ -50,11 +70,7 @@ public class FileEventHandler {
 		System.out.println("--- SYNC addFile ---");
 		System.out.println("");
 		
-		_iServerManagerEverSyncClient.addFile(client.getId(), fileName, filePath);
-		// TODO
-		// detect existing files with the same name
-		// normally each client and/or service has at most one file with the same name and path
-		// link the new file with the existing files (i.e. on each client or service)
+		_iServerManagerEverSyncClient.addAndLinkFile(client.getId(), fileName, filePath);
 		
 		//Prepare and send a response message
 		SyncResponse syncResp = new SyncResponse();
@@ -81,9 +97,9 @@ public class FileEventHandler {
 		String clientId = client.getId();
 		String localFilePath = filePath.substring(0, filePath.length()-4) + "TEST.txt";
 		// Download request is needed to ask a client to be prepared to download a file from the server
-		DownloadRequest downloadReq = new DownloadRequest(localFilePath, fileSize);
+		DownloadPreparation downloadPrep = new DownloadPreparation(localFilePath, fileSize);
 
 		EverSyncClient clientToUpdate = _clientManager.getClient(clientId);
-		clientToUpdate.sendFile(downloadReq, fileByteArray);
+		clientToUpdate.sendFile(downloadPrep, fileByteArray);
 	}
 }

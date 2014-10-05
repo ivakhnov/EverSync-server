@@ -26,21 +26,28 @@ public class MessageReflect {
 		NormalMessage response = new NormalMessage();
 		response.setKeyValue("methodName", "showLinkedItems");
 
-		JSONObject nestedMsg = new JSONObject();
-
-		JSONArray list = new JSONArray();
-		list.put("msg 1");
-		list.put("msg 2");
-		list.put("msg 3");
-
-		nestedMsg.put("FileSystem", list);
-		nestedMsg.put("evernote", list);
-		nestedMsg.put("facebook", list);
+//		JSONObject nestedMsg = new JSONObject();
+//
+//		JSONArray list = new JSONArray();
+//		list.put("msg 1");
+//		list.put("msg 2");
+//		list.put("msg 3");
+//
+//		nestedMsg.put("FileSystem", list);
+//		nestedMsg.put("evernote", list);
+//		nestedMsg.put("facebook", list);
 		
-		_fileEventHandler.getLinkedFiles(client, fileName, filePath);
+		JSONObject linkedFiles = _fileEventHandler.getLinkedFiles(client, fileName, filePath);
 
-		response.setKeyValue("items", nestedMsg);
+		response.setKeyValue("items", linkedFiles);
 		client.sendMsg(response);
+	}
+
+	private void openRemotely(String filePath) {
+		// TODO
+		// get here the client
+		OpenFileRequest req = new OpenFileRequest(filePath);
+		//client.sendMsg(req);
 	}
 
 	public void parseMessage(EverSyncClient client, Message message) {
@@ -78,11 +85,15 @@ public class MessageReflect {
 				}
 				break;
 			case "modifyFile": {
-				System.out.println("modifyFile");
 				String fileName = params.getValue("fileName");
 				String filePath = params.getValue("filePath");
 				String lastModified = params.getValue("lastModified");
 				_fileEventHandler.modifyFile(client, fileName, filePath);
+				}
+				break;
+			case "openRemotely": {
+				String filePath = params.getValue("filePath");
+				openRemotely(filePath);
 				}
 				break;
 			default:
