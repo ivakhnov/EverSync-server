@@ -130,6 +130,8 @@ public class EverSyncClientManager {
 	public void disconnected(EverSyncClient client) {
 		client.resetConn();
 		_connectedClients.remove(client.getId());
+		ConnectedClientsNotification connectedMsg = new ConnectedClientsNotification(_connectedClients);
+		broadcast(connectedMsg);
 	}
 
 	public EverSyncClient getClient(String clientId) {

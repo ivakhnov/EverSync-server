@@ -51,6 +51,14 @@ public abstract class Message {
 		}
 	}
 	
+	public void setKeyValue(String key, JSONArray value) {
+		try {
+			_MSG.put(key, value);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	/**
 	 * To read one single value corresponding to a key in the message.
 	 */
@@ -158,7 +166,11 @@ public abstract class Message {
 		public InstalledClientsNotification(Set<String> clientsSet) {
 			super.setKeyValue("msgType", "Normal Message");
 			super.setKeyValue("methodName", "setInstalledClients");
-			super.setKeyValue("clients", clientsSet.toString());
+			JSONArray clientsArray = new JSONArray();
+			for (String clientId : clientsSet) {
+				clientsArray.put(clientId);
+			}
+			super.setKeyValue("clients", clientsArray);
 		}
 	}
 	
@@ -166,7 +178,11 @@ public abstract class Message {
 		public ConnectedClientsNotification(Set<String> clientsSet) {
 			super.setKeyValue("msgType", "Normal Message");
 			super.setKeyValue("methodName", "setConnectedClients");
-			super.setKeyValue("clients", clientsSet.toString());
+			JSONArray clientsArray = new JSONArray();
+			for (String clientId : clientsSet) {
+				clientsArray.put(clientId);
+			}
+			super.setKeyValue("clients", clientsArray);
 		}
 	}
 }
