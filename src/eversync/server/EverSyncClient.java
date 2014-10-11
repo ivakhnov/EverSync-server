@@ -18,6 +18,7 @@ public class EverSyncClient {
 	private String _rootPath;
 	private Queue<Connection> _streamConns;
 	private Queue<byte[]> _streamData;
+	private Queue<Message> _messageQueue;
 
 	/**
 	 * Constructor
@@ -27,6 +28,7 @@ public class EverSyncClient {
 		_ID = Id;
 		_streamConns = new LinkedList<Connection>();
 		_streamData = new LinkedList<byte[]>();
+		_messageQueue = new LinkedList<Message>();
 	}
 
 	/**
@@ -63,6 +65,7 @@ public class EverSyncClient {
 	}
 
 	public void resetConn() {
+		_conn.closeConn();
 		_conn = null;
 	}
 
@@ -79,6 +82,9 @@ public class EverSyncClient {
 		setRootPath();
 	}
 	
+	public String getOs() {
+		return _OS;
+	}
 	
 	/**
 	 * Methods for sending and receiving messages from the client.
@@ -108,6 +114,8 @@ public class EverSyncClient {
 
 		if (isConnected()) {
 			sendMsg(downloadReq);
+		} else {
+			_messageQueue.add(downloadReq);
 		}
 	}
 
@@ -115,5 +123,25 @@ public class EverSyncClient {
 		Connection streamConn = _streamConns.poll();
 		byte[] file = _streamData.poll();
 		streamConn.sendByteArray(file);
+		streamConn.closeConn();
+	}
+	
+	/**
+	 * The client is connected, so check if it has mist something important.
+	 * Check the queue of messages he didn't receive.
+	 */
+	public void redeemMessages() {
+		while (_messageQueue.peek() != null) {
+			Message msg = _messageQueue.poll();
+			sendMsg(msg);
+		}
+	}
+	
+	// For debugging purposes
+	public int getNumberOfConnection() {
+		int res = 0;
+		if(_conn != null) { res++; };
+		res += _streamConns.size();
+		return res;
 	}
 }

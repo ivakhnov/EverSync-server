@@ -79,6 +79,7 @@ public class FileEventHandler {
 	// TODO implement the same method for plugins
 	
 	public void modifyFile(EverSyncClient client, String fileName, String filePath) throws Exception {
+		System.out.println("server: File modification registered: "+filePath);
 		UploadRequest uploadReq = new UploadRequest(filePath);
 		
 		client.sendMsg(uploadReq);
@@ -87,19 +88,25 @@ public class FileEventHandler {
 		
 		byte[] fileByteArray = client.getFile(fileSize);
 		
-		// TODO read a list of linked files which have to be updated 
-		// => ONLY with property "hostType" = "EverSyncClient"
-//		for (DigitalObject fileObject : linkedFiles) {
-//			String clientId = fileObject.getProperty("hostId").getValue();
-//			String localFilePath = fileObject.getUri();
-//			DownloadRequest downloadReq = new DownloadRequest(localFilePath, fileSize);
-
-		String clientId = client.getId();
-		String localFilePath = filePath.substring(0, filePath.length()-4) + "TEST.txt";
-		// Download request is needed to ask a client to be prepared to download a file from the server
-		DownloadPreparation downloadPrep = new DownloadPreparation(localFilePath, fileSize);
-
-		EverSyncClient clientToUpdate = _clientManager.getClient(clientId);
-		clientToUpdate.sendFile(downloadPrep, fileByteArray);
+		// Collect all the linked entities to be updated
+		JSONArray clientFiles = _iServerManagerEverSyncClient.getLinkedFiles(filePath);
+		for (int x = 0; x < clientFiles.length(); x++) {
+			JSONObject file = clientFiles.getJSONObject(x);
+			String receiverId = file.getString("hostId");
+			String localFilePath = file.getString("uri");
+			
+			// Skip the "uploader"
+			if (receiverId == client.getId()) {
+				System.out.println("Skip one receiver");
+				continue;
+			} else {
+				System.out.println("Send to one receiver");
+				// Download request is needed to ask a client to be prepared to download a file from the server
+				DownloadPreparation downloadPrep = new DownloadPreparation(localFilePath, fileSize);
+				
+				EverSyncClient clientToUpdate = _clientManager.getClient(receiverId);
+				clientToUpdate.sendFile(downloadPrep, fileByteArray);
+			}
+		}
 	}
 }

@@ -61,4 +61,15 @@ public class Connection {
 			e.printStackTrace();
 		}
 	}
+	
+	public void closeConn() {
+		try {
+			_inBffReader.close();
+			_inBffStream.close();
+			_out.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }

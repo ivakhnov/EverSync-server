@@ -94,7 +94,7 @@ public class Server  {
 				log.info("A client tried to connect without success..");
 				e.printStackTrace();
 			}
-			log.info("Client connected: " + _clientID);
+			log.info("Client connected: " + _clientID + " and has now " + _client.getNumberOfConnection() + " connection ("+_client.getOs()+").");
 		}
 
 
@@ -104,6 +104,7 @@ public class Server  {
 			// connections are only used to stream files, not to listen for messages.
 			if(_client.hasStreamConnections()) {
 				_client.streamData();
+				return;
 			} else {
 				// While the client is connected, listen to its messages.
 				while (_clientManager.checkConnection(_clientID)) {

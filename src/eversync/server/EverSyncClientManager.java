@@ -102,6 +102,7 @@ public class EverSyncClientManager {
 			client.addStreamConnection(conn);
 		} else {
 			client.setConn(conn);
+			client.redeemMessages();
 			// Bookkeeping
 			_connectedClients.add(client.getId());
 			// Finally, notify the others that a new client has been connected (and/or installed).
@@ -114,7 +115,7 @@ public class EverSyncClientManager {
 	}
 
 	/**
-	 * To whether whether the client with a particular ID is currentl connected to the server.
+	 * To check whether the client with a particular ID is currently connected to the server.
 	 * @param clientID
 	 * @return
 	 */
