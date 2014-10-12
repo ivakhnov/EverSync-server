@@ -147,9 +147,10 @@ public abstract class Message {
 	}
 
 	public static class DownloadPreparation extends Message {
-		public DownloadPreparation(String filePath, int fileSize) {
+		public DownloadPreparation(int fileSize, String fileName, String filePath) {
 			super.setKeyValue("msgType", "Download Preparation");
 			super.setKeyValue("filePath", filePath);
+			super.setKeyValue("fileName", fileName);
 			super.setKeyValue("fileSize", Integer.toString(fileSize));
 		}
 	}

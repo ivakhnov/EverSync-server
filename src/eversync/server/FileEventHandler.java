@@ -44,8 +44,9 @@ public class FileEventHandler {
 		_iServerManagerEverSyncClient = iServerManagerEverSyncClient;
 	}
 	
-	public JSONObject getLinkedFiles(EverSyncClient client, String fileName, String filePath) throws JSONException {
-		String location = filePath.substring(0, filePath.indexOf(':'));
+	public JSONObject getLinkedFiles(EverSyncClient client, String fileName, String fullPath) throws JSONException {
+		String[] path = fullPath.split(":");
+		String filePath = path[path.length - 1];
 		
 		filePath = filePath.substring(filePath.indexOf(':') + 1, filePath.length());
 		JSONObject results = new JSONObject();
@@ -94,6 +95,7 @@ public class FileEventHandler {
 			JSONObject file = clientFiles.getJSONObject(x);
 			String receiverId = file.getString("hostId");
 			String localFilePath = file.getString("uri");
+			String name = file.getString("name");
 			
 			// Skip the "uploader"
 			if (receiverId == client.getId()) {
@@ -102,7 +104,7 @@ public class FileEventHandler {
 			} else {
 				System.out.println("Send to one receiver");
 				// Download request is needed to ask a client to be prepared to download a file from the server
-				DownloadPreparation downloadPrep = new DownloadPreparation(localFilePath, fileSize);
+				DownloadPreparation downloadPrep = new DownloadPreparation(fileSize, localFilePath, name);
 				
 				EverSyncClient clientToUpdate = _clientManager.getClient(receiverId);
 				clientToUpdate.sendFile(downloadPrep, fileByteArray);

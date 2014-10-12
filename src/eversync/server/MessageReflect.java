@@ -16,9 +16,11 @@ import eversync.server.Message.*;
 public class MessageReflect {
 
 	private static FileEventHandler _fileEventHandler;
+	private static EverSyncClientManager _clientManager;
 
-	public MessageReflect(FileEventHandler fileEventHandler) {
+	public MessageReflect(FileEventHandler fileEventHandler, EverSyncClientManager clientManager) {
 		_fileEventHandler = fileEventHandler;
+		_clientManager = clientManager;
 	}
 
 	private void getLinkedFiles(EverSyncClient client, String fileName, String filePath) throws JSONException {
@@ -43,12 +45,31 @@ public class MessageReflect {
 		client.sendMsg(response);
 	}
 
-	private void openRemotely(String filePath) {
-		// TODO
-		// get here the client
+	private void openRemotely(String hostId, String filePath) {
+		System.out.println("hostId for openRemote: " + hostId);
+		System.out.println("check its connection: " + _clientManager.checkConnection(hostId));
+		
+		EverSyncClient client = _clientManager.getClient(hostId);
 		OpenFileRequest req = new OpenFileRequest(filePath);
-		//client.sendMsg(req);
+		client.sendMsg(req);
 	}
+	
+	private void copyFromRemoteAndOpen(EverSyncClient receiverClient, String hostId, String fileUri, String fileName) throws NumberFormatException, Exception {
+		UploadRequest uploadReq = new UploadRequest(fileUri);
+		EverSyncClient hostClient = _clientManager.getClient(hostId);
+		hostClient.sendMsg(uploadReq);
+		Message res = hostClient.getMsg();
+		int fileSize = Integer.parseInt(res.getValue("fileSize"));
+		
+		String filePath = null;
+		
+		byte[] fileByteArray = hostClient.getFile(fileSize);
+		
+		// Download request is needed to ask a client to be prepared to download a file from the server
+		DownloadPreparation downloadPrep = new DownloadPreparation(fileSize, fileName, filePath);
+		
+		receiverClient.sendFile(downloadPrep, fileByteArray);
+	};
 
 	public void parseMessage(EverSyncClient client, Message message) {
 		System.out.println("Parsing the message...");
@@ -92,8 +113,16 @@ public class MessageReflect {
 				}
 				break;
 			case "openRemotely": {
+				String hostId = params.getValue("hostId");
 				String filePath = params.getValue("filePath");
-				openRemotely(filePath);
+				openRemotely(hostId, filePath);
+				}
+				break;
+			case "copyFromRemoteAndOpen": {
+				String hostId = params.getValue("hostId");
+				String fileUri = params.getValue("fileUri");
+				String fileName = params.getValue("fileName");
+				copyFromRemoteAndOpen(client, hostId, fileUri, fileName);
 				}
 				break;
 			default:
