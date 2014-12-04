@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -15,6 +16,8 @@ import org.st.iserver.DigitalObject;
 import org.st.iserver.Entity;
 
 import eversync.iServer.IServerManagerInterface;
+import eversync.plugins.Plugin;
+import eversync.plugins.PluginInterface;
 import eversync.plugins.PluginManager;
 import eversync.server.Message.*;
 
@@ -65,19 +68,29 @@ public class FileEventHandler {
 	}
 
 	public void addFile(EverSyncClient client, String fileName, String filePath) {
-		System.out.println("--- SYNC addFile ---");
-		System.out.println("clientID: " + client.getId());
-		System.out.println("filePath: " + filePath);
-		System.out.println("--- SYNC addFile ---");
+		System.out.println("SYNC addFile from ClientId: " + client.getId() + " filePath: " + filePath);
 		System.out.println("");
 		
 		_iServerManagerEverSyncClient.addAndLinkFile(client.getId(), fileName, filePath);
+		
+		// TODO: search for files with same name on the external services and link them
+		List<PluginInterface> plugins =  _pluginManager.getAllPlugins();
+		for (PluginInterface plugin : plugins) {
+			_iServerManagerServicePlugin.tryToLinkTo(plugin.getPluginName(), fileName, filePath);
+		}
 		
 		//Prepare and send a response message
 		SyncResponse syncResp = new SyncResponse();
 		client.sendMsg(syncResp);
 	}
-	// TODO implement the same method for plugins
+	
+	public void addFile(Plugin plugin, String fileName, String fileId) {
+		System.out.println("SYNC addFile from Service: " + plugin.getPluginName() + " filePath: " + fileId);
+		
+		_iServerManagerServicePlugin.addAndLinkFile(plugin.getPluginName(), fileName, fileId);
+		
+		//TODO: Search for files with the same name on the clients and link them
+	}
 	
 	public void modifyFile(EverSyncClient client, String fileName, String filePath) throws Exception {
 		System.out.println("server: File modification registered: "+filePath);

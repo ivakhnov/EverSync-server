@@ -10,5 +10,7 @@ public interface IServerManagerInterface {
 
 	public JSONArray getLinkedFiles(String fileURI);
 
+	public void tryToLinkTo(String deviceId, String fileName, String fileUri);
+
 	public void modifyFile(String deviceId, String fileName);
 }

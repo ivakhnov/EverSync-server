@@ -119,12 +119,42 @@ public class EvernotePlugin extends Plugin implements PluginInterface {
 	
 			NotesMetadataList noteList = noteStore.findNotesMetadata(filter, 0, 100, resultSpec);
 			for (NoteMetadata noteData : noteList.getNotes()) {
+				System.out.println("noteGuid : " + noteData.getGuid());
+				System.out.println("fileName : " + noteData.getTitle());
 				Note note = noteStore.getNote(noteData.getGuid(), false, true, false, false);
-				System.out.println(" * " + note);
+				List<Resource> resources = note.getResources();
+				if (resources != null && resources.size() > 0) 
+				{
+					System.out.println("Aantal resources : " + note.getResources().size());
+					for (Resource resource : resources) {
+						byte[] fileContent = resource.getData().getBody();
+						String fileType = resource.getMime();
+						String fileName = resource.getAttributes().getFileName();
+						
+						System.out.println("fileContent : " + fileContent);
+						System.out.println("fileType : " + fileType);
+						System.out.println("fileName : " + fileName);
+					};
+					System.out.println(" * " + note);
+				}
 			}
 		}
 		System.out.println();
 		System.out.println();
+	}
+	
+	/**
+	 * Collects all files and notes from the service and adds them to the IServer.
+	 */
+	private void getAllFiles() {
+		// TODO
+		// get all notes in list
+		// iterate over notes, take one per one
+		// get all files (resources is the name?) of that note
+		// add it to the IServer, link them together and search for local files with relevant names
+		// since each file will be linked with a relevant local note, eventually all the remote files on different services
+		// will also get linked via indirect links
+		// direct links => to local files ==> indirect among remote files
 	}
 
 	/**
@@ -134,10 +164,24 @@ public class EvernotePlugin extends Plugin implements PluginInterface {
 	@Override
 	public void init(FileEventHandler fileEventHandler) {
 		super._fileEventHandler = fileEventHandler;
+		// Normally, a plugin initialization means that the server has been (re)strarted.
+		// This doesn't mean that the plugin hasn't been installed on the server before the restart.
+		// However, there is no functionality implemented (yet) to track and store the "previous" state of 
+		// a plugin. Therefore, a plugin initialization means that all the files from the relevant service
+		// have to be readded to the IServer as if they didn't exist before.
+		// The ideal solution should also use a database to keep the server persistent even when it shuts down,
+		// as it happens in the clients.
+		getAllFiles();
 	}
 
 	@Override
 	public void run() {
+		try {
+			listNotes();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		// Debug code to be deleted from here
 //		try {
 //			pollForChanges();

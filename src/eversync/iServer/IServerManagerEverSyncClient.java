@@ -21,12 +21,12 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 
 	@Override
 	public void addAndLinkFile(String clientId, String fileName, String filePath) {
-		// Firstly unify standardize the file path
+		// Firstly unify and standardize the file path
 		filePath = filePath.replaceAll("\\/", "/");
 		try {
 			// Files from different devices but with identical paths are considered as copies.
-			// So hey are linked by automatically.
-			HashSet<DigitalObject> filesToLink = _iServer.getAllDigitalObjects(filePath);
+			// So they are linked by automatically.
+			HashSet<DigitalObject> filesToLink = _iServer.getAllDigitalObjectsUrl(filePath);
 			// Then add the new file
 			DigitalObject newFile = super.addFile(fileName, filePath);
 			newFile.addProperty("hostId", clientId);
@@ -42,6 +42,14 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 		System.out.println("TEST ==> "+_iServer.getAllIdElements());
 		// output:
 		// TEST ==> [[Individual:EverSync], [Individual:EverSync], file.txt, file2.txt, .DS_Store, everfile.txt, testfile.pdf, textfile.txt]
+	}
+	
+	/**
+	 * Almost the same as the addAndLinkFile does but it doesn't add a file, it tries to link given file to the
+	 * existing ones. 
+	 */
+	public void tryToLinkTo(String deviceId, String fileName, String fileUri) {
+		
 	}
 	
 	public JSONArray getLinkedFiles(String fileURI) {
