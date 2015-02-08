@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import eversync.iServer.IServerManagerInterface;
 import eversync.iServer.IServerManagerServicePlugin;
 import eversync.plugins.Evernote.EvernotePlugin;
+import eversync.plugins.Facebook.FacebookPlugin;
 import eversync.server.FileEventHandler;
 import eversync.server.Server;
 
@@ -51,6 +52,10 @@ public class PluginManager {
 		log.info("-- Initializing Evernote plugin ..."); // login: ivakhnovpim
 		EvernotePlugin evernote = new EvernotePlugin("S=s1:U=8de6c:E=14b6ad2d7e3:C=1441321abe6:P=1cd:A=en-devtoken:V=2:H=1d6bfa88d4e429fe3918e4584561e51e");
 		installPlugin("Evernote", evernote);
+		
+		log.info("-- Initializing Facebook plugin ...");
+		FacebookPlugin facebook = new FacebookPlugin("testToken");
+		installPlugin("Facebook", facebook);
 
 		log.info("All plugins initialized successfully!");
 	}

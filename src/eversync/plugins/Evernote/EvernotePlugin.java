@@ -177,7 +177,7 @@ public class EvernotePlugin extends Plugin implements PluginInterface {
 	@Override
 	public void run() {
 		try {
-			listNotes();
+			//listNotes();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
