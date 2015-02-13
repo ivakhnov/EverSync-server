@@ -8,5 +8,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/iServer"/>
 	<classpathentry kind="lib" path="/iServer/lib/sigtec.jar"/>
+	<classpathentry kind="lib" path="libs/facebook-api/restfb-1.7.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

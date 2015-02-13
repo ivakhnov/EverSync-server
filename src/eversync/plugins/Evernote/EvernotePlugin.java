@@ -168,7 +168,9 @@ public class EvernotePlugin extends Plugin implements PluginInterface {
 		// This doesn't mean that the plugin hasn't been installed on the server before the restart.
 		// However, there is no functionality implemented (yet) to track and store the "previous" state of 
 		// a plugin. Therefore, a plugin initialization means that all the files from the relevant service
-		// have to be readded to the IServer as if they didn't exist before.
+		// have to be (re)added to the IServer as if they didn't exist before.
+		// Of course, the existing files can be skipped and be readded to the IServer, but even though we have to loop
+		// through all service files and check whether it already axists in the IServer..
 		// The ideal solution should also use a database to keep the server persistent even when it shuts down,
 		// as it happens in the clients.
 		getAllFiles();

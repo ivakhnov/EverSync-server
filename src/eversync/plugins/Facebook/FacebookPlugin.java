@@ -4,7 +4,11 @@ import eversync.plugins.Plugin;
 import eversync.plugins.PluginInterface;
 import eversync.server.FileEventHandler;
 
+import com.restfb.*;
+
 public class FacebookPlugin extends Plugin implements PluginInterface {
+	
+	private FacebookClient _fbClient;
 	
 	/**
 	 * Constructor
@@ -12,6 +16,8 @@ public class FacebookPlugin extends Plugin implements PluginInterface {
 	 */
 	public FacebookPlugin(String token) throws Exception {
 		super._pluginName = "Facebook";
+		
+		_fbClient = new DefaultFacebookClient(token, Version.UNVERSIONED);
 	}
 	
 	public void pollForChanges() {
