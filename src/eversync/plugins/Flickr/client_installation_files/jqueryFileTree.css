@@ -1,0 +1,5 @@
+/**
+ * 	Associate the plugin icon
+ */
+
+.jqueryFileTree LI.plugin_flickr { background: url(icon.png) left top no-repeat; }

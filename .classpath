@@ -9,5 +9,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/iServer"/>
 	<classpathentry kind="lib" path="/iServer/lib/sigtec.jar"/>
 	<classpathentry kind="lib" path="libs/facebook-api/restfb-1.7.1.jar"/>
+	<classpathentry kind="lib" path="libs/flickr-api/flickr4java-2.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

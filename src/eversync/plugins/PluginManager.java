@@ -10,6 +10,7 @@ import eversync.iServer.IServerManagerInterface;
 import eversync.iServer.IServerManagerServicePlugin;
 import eversync.plugins.Evernote.EvernotePlugin;
 import eversync.plugins.Facebook.FacebookPlugin;
+import eversync.plugins.Flickr.FlickrPlugin;
 import eversync.server.FileEventHandler;
 import eversync.server.Server;
 
@@ -56,6 +57,10 @@ public class PluginManager {
 		log.info("-- Initializing Facebook plugin ...");
 		FacebookPlugin facebook = new FacebookPlugin("testToken");
 		installPlugin("Facebook", facebook);
+		
+		log.info("-- Initializing Flickr plugin ...");
+		FlickrPlugin flickr = new FlickrPlugin("ddbf3a3f6229d256481d4aeabaa99a63", "ca346c4fa57f2106");
+		installPlugin("Flickr", flickr);
 
 		log.info("All plugins initialized successfully!");
 	}
