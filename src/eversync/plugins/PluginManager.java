@@ -50,13 +50,13 @@ public class PluginManager {
 	public void installPlugins() throws Exception {
 		log.info("Initializing plugins ...");
 
-		log.info("-- Initializing Evernote plugin ..."); // login: ivakhnovpim
-		EvernotePlugin evernote = new EvernotePlugin("S=s1:U=8de6c:E=14b6ad2d7e3:C=1441321abe6:P=1cd:A=en-devtoken:V=2:H=1d6bfa88d4e429fe3918e4584561e51e");
-		installPlugin("Evernote", evernote);
-		
-		log.info("-- Initializing Facebook plugin ...");
-		FacebookPlugin facebook = new FacebookPlugin("testToken");
-		installPlugin("Facebook", facebook);
+//		log.info("-- Initializing Evernote plugin ..."); // login: ivakhnovpim
+//		EvernotePlugin evernote = new EvernotePlugin("S=s1:U=8de6c:E=14b6ad2d7e3:C=1441321abe6:P=1cd:A=en-devtoken:V=2:H=1d6bfa88d4e429fe3918e4584561e51e");
+//		installPlugin("Evernote", evernote);
+//		
+//		log.info("-- Initializing Facebook plugin ...");
+//		FacebookPlugin facebook = new FacebookPlugin("testToken");
+//		installPlugin("Facebook", facebook);
 		
 		log.info("-- Initializing Flickr plugin ...");
 		FlickrPlugin flickr = new FlickrPlugin("ddbf3a3f6229d256481d4aeabaa99a63", "ca346c4fa57f2106");

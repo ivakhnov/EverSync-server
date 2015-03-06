@@ -37,6 +37,7 @@ public class FlickrPlugin extends Plugin implements PluginInterface {
 		// since each file will be linked with a relevant local photo, eventually all the remote files on different services
 		// will also get linked via indirect links
 		// direct links => to local files ==> indirect among remote files
+		
 	}
 
 	/**
