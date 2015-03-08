@@ -16,7 +16,7 @@ import eversync.server.Server;
 
 public class PluginManager {
 	// Logger for debugging purposes
-	private static Logger log = Logger.getLogger(Server.class.getName());
+	private static Logger log = Logger.getLogger(PluginManager.class.getName());
 	
 	/**
 	 * A hash map where the keys are the names of the plugin's and the values are the instances of the plugin's.
@@ -59,7 +59,11 @@ public class PluginManager {
 //		installPlugin("Facebook", facebook);
 		
 		log.info("-- Initializing Flickr plugin ...");
-		FlickrPlugin flickr = new FlickrPlugin("ddbf3a3f6229d256481d4aeabaa99a63", "ca346c4fa57f2106");
+		FlickrPlugin flickr = new FlickrPlugin(
+				"ddbf3a3f6229d256481d4aeabaa99a63", 
+				"ca346c4fa57f2106",
+				"72157650764299927-66c79182ad3b0d5e",
+				"8a38b15c114110ce");
 		installPlugin("Flickr", flickr);
 
 		log.info("All plugins initialized successfully!");
