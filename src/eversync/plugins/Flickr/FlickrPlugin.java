@@ -3,10 +3,8 @@ package eversync.plugins.Flickr;
 import java.util.logging.Logger;
 
 import org.scribe.model.Token;
-import org.scribe.model.Verifier;
 
 import com.flickr4java.flickr.Flickr;
-import com.flickr4java.flickr.FlickrException;
 import com.flickr4java.flickr.REST;
 import com.flickr4java.flickr.auth.Auth;
 import com.flickr4java.flickr.auth.AuthInterface;
@@ -14,7 +12,6 @@ import com.flickr4java.flickr.auth.Permission;
 
 import eversync.plugins.Plugin;
 import eversync.plugins.PluginInterface;
-import eversync.plugins.PluginManager;
 import eversync.server.FileEventHandler;
 
 public class FlickrPlugin extends Plugin implements PluginInterface {

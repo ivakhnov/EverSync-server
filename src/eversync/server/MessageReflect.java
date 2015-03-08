@@ -1,17 +1,14 @@
 package eversync.server;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.reflect.Method;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import eversync.server.Message.*;
+import eversync.server.Message.DownloadPreparation;
+import eversync.server.Message.NormalMessage;
+import eversync.server.Message.OpenFileRequest;
+import eversync.server.Message.UploadRequest;
 
 public class MessageReflect {
 

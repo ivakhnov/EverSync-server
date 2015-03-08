@@ -1,9 +1,7 @@
 package eversync.plugins;
 
 import java.util.HashMap;
-import java.util.List;
 
-import eversync.iServer.IServerManagerInterface;
 import eversync.server.FileEventHandler;
 
 public interface PluginInterface {

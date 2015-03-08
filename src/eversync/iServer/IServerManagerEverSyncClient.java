@@ -1,18 +1,11 @@
 package eversync.iServer;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.logging.Logger;
 
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.sigtec.odi.CardinalityConstraintException;
 import org.st.iserver.DigitalObject;
-import org.st.iserver.Entity;
-import org.st.iserver.util.Property;
-
-import eversync.server.Server;
 
 public class IServerManagerEverSyncClient extends IServerManagerSuper implements IServerManagerInterface {
 	// Logger for debugging purposes

@@ -1,9 +1,10 @@
 package eversync.tests;
 
-import eversync.iServer.IServerManagerSuper;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
-import org.junit.*;
+import org.junit.Test;
+
+import eversync.iServer.IServerManagerSuper;
 
 public class IServerManagerTest {
 	

@@ -1,18 +1,12 @@
 package eversync.plugins;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
-import eversync.iServer.IServerManagerInterface;
-import eversync.iServer.IServerManagerServicePlugin;
-import eversync.plugins.Evernote.EvernotePlugin;
-import eversync.plugins.Facebook.FacebookPlugin;
 import eversync.plugins.Flickr.FlickrPlugin;
 import eversync.server.FileEventHandler;
-import eversync.server.Server;
 
 public class PluginManager {
 	// Logger for debugging purposes

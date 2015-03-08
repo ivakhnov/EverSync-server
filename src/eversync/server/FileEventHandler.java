@@ -1,25 +1,18 @@
 package eversync.server;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.st.iserver.DigitalObject;
-import org.st.iserver.Entity;
 
 import eversync.iServer.IServerManagerInterface;
 import eversync.plugins.Plugin;
 import eversync.plugins.PluginInterface;
 import eversync.plugins.PluginManager;
-import eversync.server.Message.*;
+import eversync.server.Message.DownloadPreparation;
+import eversync.server.Message.SyncResponse;
+import eversync.server.Message.UploadRequest;
 
 /**
  * Handles the events by triggering the callbacks in case of a file change on one of the clients

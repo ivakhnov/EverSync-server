@@ -1,21 +1,17 @@
 package eversync.server;
 
-import java.net.*; 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.logging.Logger;
-import java.io.*; 
 
 import eversync.iServer.IServerManagerEverSyncClient;
 import eversync.iServer.IServerManagerInterface;
 import eversync.iServer.IServerManagerServicePlugin;
 import eversync.plugins.PluginManager;
-import eversync.plugins.Evernote.EvernotePlugin;
-import eversync.server.EverSyncClient;
-import eversync.server.MessageReflect;
-import eversync.server.Message.*;
 
 
 public class Server  {

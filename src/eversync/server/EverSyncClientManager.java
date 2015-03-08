@@ -3,15 +3,14 @@ package eversync.server;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.UUID;
 
 import eversync.plugins.PluginManager;
+import eversync.server.Message.ConnectedClientsNotification;
 import eversync.server.Message.HandshakeRequest;
 import eversync.server.Message.InstallAcknowledgement;
 import eversync.server.Message.InstallRequest;
 import eversync.server.Message.InstalledClientsNotification;
-import eversync.server.Message.ConnectedClientsNotification;
 
 public class EverSyncClientManager {
 

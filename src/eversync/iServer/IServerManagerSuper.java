@@ -1,6 +1,5 @@
 package eversync.iServer;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.logging.Logger;
 
@@ -14,8 +13,6 @@ import org.st.iserver.IServerCCO;
 import org.st.iserver.IServerInterface;
 import org.st.iserver.Individual;
 import org.st.iserver.util.Property;
-
-import eversync.server.Server;
 
 public class IServerManagerSuper {
 	// Logger for debugging purposes

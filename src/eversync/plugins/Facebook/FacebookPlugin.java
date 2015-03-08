@@ -1,10 +1,12 @@
 package eversync.plugins.Facebook;
 
+import com.restfb.DefaultFacebookClient;
+import com.restfb.FacebookClient;
+import com.restfb.Version;
+
 import eversync.plugins.Plugin;
 import eversync.plugins.PluginInterface;
 import eversync.server.FileEventHandler;
-
-import com.restfb.*;
 
 public class FacebookPlugin extends Plugin implements PluginInterface {
 	
