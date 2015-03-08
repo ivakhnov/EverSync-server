@@ -22,12 +22,15 @@ public class IServerManagerSuper {
 	protected static final IServerInterface _iServer = new IServerCCO();
 	private static final Individual _creator = _iServer.createIndividual("EverSync");
 
+	/**
+	 * Save a file
+	 * @param fileName
+	 * @param fileId
+	 * @return
+	 * @throws CardinalityConstraintException
+	 */
 	protected DigitalObject addFile(String fileName, String fileId) throws CardinalityConstraintException {
-//		DigitalObject potentialLinkedFile = _iServer.getDigitalObject(fileName);
 		DigitalObject fileObject = _iServer.createDigitalObject(fileName, fileId, _creator);
-//		if (potentialLinkedFile != null) {
-//			linkFiles(potentialLinkedFile, fileObject);
-//		}
 		return fileObject;
 	}
 
@@ -113,21 +116,4 @@ public class IServerManagerSuper {
 		}
 		return results;
 	}
-	
-//	/**
-//	 * Returns a list of all files (DigitalObjects) stored in a particular external service.
-//	 * @param serviceName
-//	 * @return
-//	 */
-//	public ArrayList<DigitalObject> getObjectsService(String serviceName) {
-//		ArrayList<DigitalObject> res = new ArrayList<DigitalObject>();
-//		// TODO read all objects of a particular service
-//		try {
-//			DigitalObject object = _iServer.createDigitalObject("exam-examples.pdf", "id_van_note_nummer_2", _creator);
-//			res.add(object);
-//		} catch (CardinalityConstraintException e) {
-//			e.printStackTrace();
-//		}
-//		return res;
-//	}
 }
