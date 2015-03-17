@@ -42,4 +42,8 @@ public class Plugin {
 		
 		return installFiles;
 	}
+
+	protected void addFile(String fileName, String fileId) {
+		_fileEventHandler.addFile(this, fileName, fileId);
+	}
 }

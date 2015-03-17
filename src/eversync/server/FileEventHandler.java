@@ -49,13 +49,20 @@ public class FileEventHandler {
 		// Collect all the linked entities
 		JSONArray clientFiles = _iServerManagerEverSyncClient.getLinkedFiles(filePath);
 		results.put("MyDevices", clientFiles);
-		/*
-		 * for (each plugin) {
-		 * 		string pluginname = plugin.getname
-		 * 		iservermanagerserviceplugin.getLinkedfiles
-		 * 		
-		 * }
-		 */
+		
+		JSONArray remoteFiles = _iServerManagerServicePlugin.getLinkedFiles(fileName);
+		for(int x = 0; x < remoteFiles.length(); x++) {
+			JSONObject fileObj = remoteFiles.getJSONObject(x);
+			String pluginName = fileObj.getString("hostId");
+			JSONArray pluginRes = null;
+			try {
+				pluginRes = results.getJSONArray(pluginName);
+			} catch (Exception e) {
+				pluginRes = new JSONArray();
+			}
+			pluginRes.put(fileObj);
+			results.put(pluginName, pluginRes);
+		}
 		
 		return results;
 	}
@@ -69,7 +76,7 @@ public class FileEventHandler {
 		// TODO: search for files with same name on the external services and link them
 		List<PluginInterface> plugins =  _pluginManager.getAllPlugins();
 		for (PluginInterface plugin : plugins) {
-			_iServerManagerServicePlugin.tryToLinkTo(plugin.getPluginName(), fileName, filePath);
+			//_iServerManagerServicePlugin.tryToLinkTo(plugin.getPluginName(), fileName, filePath);
 		}
 		
 		//Prepare and send a response message

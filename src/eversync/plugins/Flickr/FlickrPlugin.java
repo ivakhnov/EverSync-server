@@ -1,14 +1,19 @@
 package eversync.plugins.Flickr;
 
+import java.util.Date;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import org.scribe.model.Token;
 
 import com.flickr4java.flickr.Flickr;
+import com.flickr4java.flickr.FlickrException;
 import com.flickr4java.flickr.REST;
 import com.flickr4java.flickr.auth.Auth;
 import com.flickr4java.flickr.auth.AuthInterface;
 import com.flickr4java.flickr.auth.Permission;
+import com.flickr4java.flickr.photos.Photo;
+import com.flickr4java.flickr.photos.PhotoList;
 
 import eversync.plugins.Plugin;
 import eversync.plugins.PluginInterface;
@@ -43,9 +48,29 @@ public class FlickrPlugin extends Plugin implements PluginInterface {
 	
 	/**
 	 * Collects all files and notes from the service and adds them to the IServer.
+	 * @throws FlickrException 
 	 */
-	private void getAllPhotos() {
+	private void getAllPhotos() throws FlickrException {
+		String userId = _auth.getUser().getId();
+		String safeSearch = null;
+		Date minUploadDate = null;
+		Date maxUploadDate = null;
+		Date minTakenDate = null;
+		Date maxTakenDate = null;
+		String contentType = "7"; // Content Type setting: 7 for photos, screenshots, and 'other' (= all).
+		String privacyFilter = null;
+		Set<String> extras = null;
+		int perPage = 500; // The max value allowed by Flickr API
+		int page = 1; // No pagination implemented yet in this plugin
 		
+		PhotoList <Photo> photos = _flickr.getPeopleInterface().getPhotos(userId, safeSearch, minUploadDate, maxUploadDate, minTakenDate, 
+				maxTakenDate, contentType, privacyFilter, extras, perPage, page);
+		
+		for (Photo photo : photos) {
+			String fileId = photo.getId();
+			String fileName = photo.getTitle();
+			super.addFile(fileName, fileId);
+		}
 	}
 	
 	private void warnAppRegistration() {
@@ -55,9 +80,9 @@ public class FlickrPlugin extends Plugin implements PluginInterface {
 		//log.info("token: " + token);
 		
 		String url = authInterface.getAuthorizationUrl(token, Permission.DELETE);
-		log.warning("Follow this URL to authorise yourself on Flickr");
-		log.warning(url);
-		log.warning("Insert the token it gives you into configuration of this app!");
+		log.severe("Follow this URL to authorise yourself on Flickr");
+		log.severe(url);
+		log.severe("Insert the token it gives you into configuration of this app!");
 	}
 
 	/**
@@ -67,13 +92,17 @@ public class FlickrPlugin extends Plugin implements PluginInterface {
 	public void init(FileEventHandler fileEventHandler) {
 		super._fileEventHandler = fileEventHandler;
 		// Some additional functionality if needed.
-		getAllPhotos();
+		try {
+			getAllPhotos();
+		} catch (FlickrException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void run() {
 		try {
-			getAllPhotos();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
