@@ -30,7 +30,7 @@ public class FlickrPlugin extends Plugin implements PluginInterface {
 	 * During this step, we authenticate with the FLickr web service.
 	 */
 	public FlickrPlugin(String apiKey, String sharedSecret, String token, String tokenSecret) throws Exception {
-		super._pluginName = "FLickr";
+		super._pluginName = "Flickr";
 		this._flickr = new Flickr(apiKey, sharedSecret, new REST());
 		
 		try {
@@ -70,6 +70,19 @@ public class FlickrPlugin extends Plugin implements PluginInterface {
 			String fileId = photo.getId();
 			String fileName = photo.getTitle();
 			super.addFile(fileName, fileId);
+		}
+	}
+	
+	@Override
+	public void replaceFile(String fileName, String fileUri, byte[] fileByteArray) {
+		Boolean async = true;
+		try {
+			//_flickr.
+			_flickr.getUploader().replace(fileByteArray, fileUri, async);
+		} catch (FlickrException e) {
+			// TODO Auto-generated catch block
+			log.severe("Unable to replace the photo with id: " + fileUri);
+			e.printStackTrace();
 		}
 	}
 	

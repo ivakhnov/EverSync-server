@@ -102,8 +102,10 @@ public class FileEventHandler {
 		
 		byte[] fileByteArray = client.getFile(fileSize);
 		
-		// Collect all the linked entities to be updated
+		// Collect all the local (on the clients) linked entities to be updated
 		JSONArray clientFiles = _iServerManagerEverSyncClient.getLinkedFiles(filePath);
+		// Then notify all the registered client to update the file (the ones that are offline will get changes
+		// pushed when then become available
 		for (int x = 0; x < clientFiles.length(); x++) {
 			JSONObject file = clientFiles.getJSONObject(x);
 			String receiverId = file.getString("hostId");
@@ -122,6 +124,22 @@ public class FileEventHandler {
 				EverSyncClient clientToUpdate = _clientManager.getClient(receiverId);
 				clientToUpdate.sendFile(downloadPrep, fileByteArray);
 			}
+		}
+		
+		// All the remotely linked files (on the third party services)
+		JSONArray remoteFiles = _iServerManagerServicePlugin.getLinkedFiles(fileName);
+		// Update those files as well
+		for (int i = 0; i < remoteFiles.length(); i++) {
+			JSONObject remoteFile = (JSONObject) remoteFiles.get(i);
+			// remoteFile looks as follows:
+			//{	
+			//	"hostType":"EverSyncClient",
+			//	"name":"wallpaper-2388706.jpg",
+			//	"hostId":"1d79d0a5-5b7a-4d28-a7a3-3234a83cf660",
+			//	"uri":"untitled_folder/wallpaper-2388706.jpg"
+			//}
+			PluginInterface plugin = _pluginManager.get(remoteFile.getString("hostId"));
+			plugin.replaceFile(remoteFile.getString("name"), remoteFile.getString("uri"), fileByteArray);
 		}
 	}
 }

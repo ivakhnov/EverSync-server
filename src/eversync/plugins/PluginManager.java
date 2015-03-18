@@ -24,7 +24,6 @@ public class PluginManager {
 		_fileEventHandler = fileEventhandler;
 	}
 
-
 	/**
 	 * Installation of a plugin consists of initializing it, make it run and 
 	 * finally adding it to the HashMap to hold the object.
@@ -69,5 +68,14 @@ public class PluginManager {
 	 */
 	public static List<PluginInterface> getAllPlugins() {
 		return new ArrayList<PluginInterface>(_plugins.values());
+	}
+	
+	/**
+	 * Returns PluginInterface by plugin name
+	 * @param pluginName
+	 * @return
+	 */
+	public PluginInterface get(String pluginName) {
+		return _plugins.get(pluginName);
 	}
 }

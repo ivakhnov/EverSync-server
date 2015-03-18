@@ -190,5 +190,11 @@ public class EvernotePlugin extends Plugin implements PluginInterface {
 //		}
 	}
 
+	@Override
+	public void replaceFile(String fileName, String fileUri, byte[] fileByteArray) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 }

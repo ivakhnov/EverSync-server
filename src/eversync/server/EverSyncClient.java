@@ -127,7 +127,7 @@ public class EverSyncClient {
 	}
 	
 	/**
-	 * The client is connected, so check if it has mist something important.
+	 * The client is connected, so check if it has missed something important.
 	 * Check the queue of messages he didn't receive.
 	 */
 	public void redeemMessages() {

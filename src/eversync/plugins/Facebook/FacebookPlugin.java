@@ -60,5 +60,11 @@ public class FacebookPlugin extends Plugin implements PluginInterface {
 		}
 	}
 
+	@Override
+	public void replaceFile(String fileName, String fileUri, byte[] fileByteArray) {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 }
