@@ -3,3 +3,4 @@
  */
 
 .jqueryFileTree LI.plugin_Flickr { background: url(icon.png) left top no-repeat; }
+.jqueryFileTree LI.ext_FlickrComment { background: url(comment2.png) left top no-repeat; }

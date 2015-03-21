@@ -27,8 +27,10 @@ public class Plugin {
 			List<File> list = Arrays.asList(root.listFiles());
 			
 			for(int x = 0; x < list.size(); x++) {
-				File f = list.get(x);
-				Path path = Paths.get(f.getAbsolutePath());
+				File file = list.get(x);
+				if (file.isHidden())
+					continue; // skip hidden files
+				Path path = Paths.get(file.getAbsolutePath());
 				String fileName = path.getFileName().toString();
 				System.out.println("path: " + path);
 				System.out.println("fileName: " + fileName);

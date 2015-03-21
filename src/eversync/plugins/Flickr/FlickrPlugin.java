@@ -67,8 +67,9 @@ public class FlickrPlugin extends Plugin implements PluginInterface {
 				maxTakenDate, contentType, privacyFilter, extras, perPage, page);
 		
 		for (Photo photo : photos) {
-			String fileId = photo.getId();
 			String fileName = photo.getTitle();
+			String fileId = photo.getId();
+			//fileId += "." + "FlickrComment";
 			super.addFile(fileName, fileId);
 		}
 	}
