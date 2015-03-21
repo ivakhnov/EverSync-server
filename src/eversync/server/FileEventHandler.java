@@ -46,11 +46,14 @@ public class FileEventHandler {
 		
 		filePath = filePath.substring(filePath.indexOf(':') + 1, filePath.length());
 		JSONObject results = new JSONObject();
-		// Collect all the linked entities
+		// Collect local linked assets
 		JSONArray clientFiles = _iServerManagerEverSyncClient.getLinkedFiles(filePath);
-		results.put("MyDevices", clientFiles);
+		if (clientFiles.length() > 0) {
+			results.put("MyDevices", clientFiles);
+		}
 		
-		JSONArray remoteFiles = _iServerManagerServicePlugin.getLinkedFiles(fileName);
+		// Collect remote linked assets (on services)
+		JSONArray remoteFiles = _iServerManagerServicePlugin.getLinkedFiles(filePath);
 		for(int x = 0; x < remoteFiles.length(); x++) {
 			JSONObject fileObj = remoteFiles.getJSONObject(x);
 			String pluginName = fileObj.getString("hostId");
@@ -71,7 +74,7 @@ public class FileEventHandler {
 		System.out.println("SYNC addFile from ClientId: " + client.getId() + " filePath: " + filePath);
 		System.out.println("");
 		
-		_iServerManagerEverSyncClient.addAndLinkFile(client.getId(), fileName, filePath);
+		_iServerManagerEverSyncClient.addAndLinkFile(client.getId(), fileName, filePath, null);
 		
 		// TODO: search for files with same name on the external services and link them
 		List<PluginInterface> plugins =  _pluginManager.getAllPlugins();
@@ -84,10 +87,10 @@ public class FileEventHandler {
 		client.sendMsg(syncResp);
 	}
 	
-	public void addFile(Plugin plugin, String fileName, String fileId) {
+	public void addFile(Plugin plugin, String fileName, String fileId, String fileNameLabel) {
 		System.out.println("SYNC addFile from Service: " + plugin.getPluginName() + " filePath: " + fileId);
 		
-		_iServerManagerServicePlugin.addAndLinkFile(plugin.getPluginName(), fileName, fileId);
+		_iServerManagerServicePlugin.addAndLinkFile(plugin.getPluginName(), fileName, fileId, fileNameLabel);
 		
 		//TODO: Search for files with the same name on the clients and link them
 	}

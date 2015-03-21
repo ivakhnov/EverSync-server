@@ -1,6 +1,7 @@
 package eversync.iServer;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import org.json.JSONArray;
@@ -14,7 +15,7 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 
 
 	@Override
-	public void addAndLinkFile(String clientId, String fileName, String filePath) {
+	public void addAndLinkFile(String clientId, String fileName, String filePath, String fileNameLabel) {
 		// Firstly unify and standardize the file path
 		filePath = filePath.replaceAll("\\/", "/");
 		
@@ -32,6 +33,9 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 		try {
 			// Add the new file
 			newFile = super.addFile(fileName, filePath);
+			if (fileNameLabel != null) {
+				newFile.setLabel(fileNameLabel);
+			}
 			newFile.addProperty("hostId", clientId);
 			newFile.addProperty("hostType", "EverSyncClient");
 		} catch (CardinalityConstraintException e) {
@@ -52,12 +56,12 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 		}
 		
 		// Automatically link the new file with the existing copies on third party services
-		for(DigitalObject file : remoteFilesToLink){
+		for(DigitalObject file : remoteFilesToLink) {
 			Property hostType = file.getProperty("hostType");
 			if (hostType.getValue().equals("EverSyncClient"))
 				continue;
 			
-			super.linkFiles(file, newFile);
+			super.linkFiles(newFile, file);
 		}
 		
 		// TODO: Remove this test code
@@ -66,6 +70,11 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 		// TEST ==> [[Individual:EverSync], [Individual:EverSync], file.txt, file2.txt, .DS_Store, everfile.txt, testfile.pdf, textfile.txt]
 	}
 	
+	@Override
+	public JSONArray getAllLinkedFiles(String fileURI) {
+		return super.getAllLinkedFilesRecursively("EverSyncClient", fileURI);
+	}
+
 	@Override
 	public JSONArray getLinkedFiles(String fileURI) {
 		return super.getLinkedFiles("EverSyncClient", fileURI);

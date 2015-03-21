@@ -1,6 +1,7 @@
 package eversync.iServer;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import org.json.JSONArray;
@@ -14,7 +15,7 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 
 
 	@Override
-	public void addAndLinkFile(String serviceName, String fileName, String fileId) {
+	public void addAndLinkFile(String serviceName, String fileName, String fileId, String fileNameLabel) {
 		// Files on different third party services with the same are considered as POTENTIAL copies
 		// and have to be linked after user's confirmation.
 		HashSet<DigitalObject> remoteFilesToLink = _iServer.getAllDigitalObjects(fileName);
@@ -25,6 +26,9 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 		try {
 			// Add the new file
 			newFile = super.addFile(fileName, fileId);
+			if (fileNameLabel != null) {
+				newFile.setLabel(fileNameLabel);
+			}
 			newFile.addProperty("hostId", serviceName);
 			newFile.addProperty("hostType", "ExternalService");
 		} catch (CardinalityConstraintException e) {
@@ -53,6 +57,17 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 
 	}
 	
+	@Override
+	public JSONArray getAllLinkedFiles(String fileName) {
+		String fileUri = _iServer.getDigitalObject(fileName).getUri();
+		return super.getAllLinkedFilesRecursively("ExternalService", fileUri);
+	}
+	
+	@Override
+	public JSONArray getLinkedFiles(String fileURI) {
+		return super.getLinkedFiles("ExternalService", fileURI);
+	}
+	
 	public void deleteFile(String fileName) {
 		// TODO Auto-generated method stub
 		
@@ -61,12 +76,6 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 	public void modifyFile(String deviceId, String fileName) {
 		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public JSONArray getLinkedFiles(String fileName) {
-		String fileUri = _iServer.getDigitalObject(fileName).getUri();
-		return super.getLinkedFiles("ExternalService", fileUri);
 	}
 
 }

@@ -30,6 +30,7 @@ public class Plugin {
 				File file = list.get(x);
 				if (file.isHidden())
 					continue; // skip hidden files
+				
 				Path path = Paths.get(file.getAbsolutePath());
 				String fileName = path.getFileName().toString();
 				System.out.println("path: " + path);
@@ -45,7 +46,7 @@ public class Plugin {
 		return installFiles;
 	}
 
-	protected void addFile(String fileName, String fileId) {
-		_fileEventHandler.addFile(this, fileName, fileId);
+	protected void addFile(String fileName, String fileId, String fileNameLabel) {
+		_fileEventHandler.addFile(this, fileName, fileId, fileNameLabel);
 	}
 }

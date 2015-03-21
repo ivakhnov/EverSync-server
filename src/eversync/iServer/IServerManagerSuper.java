@@ -59,10 +59,12 @@ public class IServerManagerSuper {
 		
 		String fileName = obj.getName();
 		String fileUri =  obj.getUri();
+		String fileLabel = obj.getLabel();
 		
 		try {
 			result.put("name", fileName);
 			result.put("uri", fileUri);
+			result.put("nameLabel", fileLabel);
 			
 			HashSet<Property> propertiesSet = obj.getProperties();
 			for(Property prop : propertiesSet) {
@@ -99,7 +101,7 @@ public class IServerManagerSuper {
 	 * @param fileURI: can be a file path for the items on a client device and an ID for items from services.
 	 * @return
 	 */
-	protected JSONArray getLinkedFiles(String hostType, String fileURI) {
+	protected JSONArray getAllLinkedFilesRecursively(String hostType, String fileURI) {
 		HashSet<Entity> allLinkedFiles = new HashSet<Entity>();
 		JSONArray results = new JSONArray();
 		
@@ -109,6 +111,21 @@ public class IServerManagerSuper {
 		getLinkedFilesRecursion(aFile, allLinkedFiles);
 		
 		for(Entity file : allLinkedFiles) {
+			if(file.getProperty("hostType").getValue().equals(hostType)) {
+				JSONObject propertiesJson = digitalObjectToJson((DigitalObject)file);
+				results.put(propertiesJson);
+			}
+		}
+		return results;
+	}
+	
+	protected JSONArray getLinkedFiles(String hostType, String fileURI) {
+		JSONArray results = new JSONArray();
+		
+		DigitalObject aFile =  _iServer.getDigitalObjectUrl(fileURI);
+		HashSet<Entity> linkedFiles = aFile.getEntitiesDirectlyLinkedToMe();
+		
+		for(Entity file : linkedFiles) {
 			if(file.getProperty("hostType").getValue().equals(hostType)) {
 				JSONObject propertiesJson = digitalObjectToJson((DigitalObject)file);
 				results.put(propertiesJson);

@@ -1,6 +1,10 @@
 package eversync.plugins.Flickr;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -14,6 +18,8 @@ import com.flickr4java.flickr.auth.AuthInterface;
 import com.flickr4java.flickr.auth.Permission;
 import com.flickr4java.flickr.photos.Photo;
 import com.flickr4java.flickr.photos.PhotoList;
+import com.flickr4java.flickr.photos.comments.Comment;
+import com.flickr4java.flickr.photos.comments.CommentsInterface;
 
 import eversync.plugins.Plugin;
 import eversync.plugins.PluginInterface;
@@ -24,6 +30,8 @@ public class FlickrPlugin extends Plugin implements PluginInterface {
 	private static Logger log = Logger.getLogger(FlickrPlugin.class.getName());
 	private Flickr _flickr = null;
 	private Auth _auth = null;
+	
+	private final String COMMENT_LABEL = "FlickrComment";
 	
 	/**
 	 * Constructor.
@@ -67,10 +75,31 @@ public class FlickrPlugin extends Plugin implements PluginInterface {
 				maxTakenDate, contentType, privacyFilter, extras, perPage, page);
 		
 		for (Photo photo : photos) {
-			String fileName = photo.getTitle();
-			String fileId = photo.getId();
-			//fileId += "." + "FlickrComment";
-			super.addFile(fileName, fileId);
+			collectComments(photo);
+		}
+	}
+	
+	private void collectComments(Photo photo) {
+		DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+		String photoName = photo.getTitle();
+		String photoId = photo.getId();
+		//fileId += "." + "FlickrComment";
+		
+		CommentsInterface ci = _flickr.getCommentsInterface();
+		List<Comment> comments;
+		try {
+			comments = ci.getList(photoId);
+			Iterator<Comment> commentsIterator = comments.iterator();
+			
+			while (commentsIterator.hasNext()) {
+				Comment comment = (Comment) commentsIterator.next();
+				String id = String.join(".", photoId, comment.getId(), COMMENT_LABEL);
+				String label = String.join(" - ", comment.getAuthorName(), df.format(comment.getDateCreate()));
+				super.addFile(photoName, id, label);
+			}
+		} catch (FlickrException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	
