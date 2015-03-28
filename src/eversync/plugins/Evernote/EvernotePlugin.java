@@ -7,6 +7,7 @@ import com.evernote.auth.EvernoteService;
 import com.evernote.clients.ClientFactory;
 import com.evernote.clients.NoteStoreClient;
 import com.evernote.clients.UserStoreClient;
+import com.evernote.edam.error.EDAMNotFoundException;
 import com.evernote.edam.error.EDAMSystemException;
 import com.evernote.edam.error.EDAMUserException;
 import com.evernote.edam.notestore.NoteFilter;
@@ -135,17 +136,65 @@ public class EvernotePlugin extends Plugin implements PluginInterface {
 	}
 	
 	/**
-	 * Collects all files and notes from the service and adds them to the IServer.
+	 * Collects all the notebooks of a user and adds them to the iServer. 
+	 * No links between notes and files (local or remote) are created here.
+	 * This method is used to construct the first hop of the links: 
+	 * local file => notebook => remote file inside notebook => potential any other items related to the file
+	 * @throws EDAMUserException
+	 * @throws EDAMSystemException
+	 * @throws TException
 	 */
-	private void getAllFiles() {
-		// TODO
-		// get all notes in list
-		// iterate over notes, take one per one
-		// get all files (resources is the name?) of that note
-		// add it to the IServer, link them together and search for local files with relevant names
-		// since each file will be linked with a relevant local note, eventually all the remote files on different services
-		// will also get linked via indirect links
-		// direct links => to local files ==> indirect among remote files
+	private void getAllNotes() throws EDAMUserException, EDAMSystemException, TException {
+		List<Notebook> notebooks = noteStore.listNotebooks();
+		for (Notebook notebook : notebooks) {
+			super.addFile(notebook.getGuid(), notebook.getGuid(), notebook.getName());
+		}
+	}
+	
+	/**
+	 * Collects all files and notes from the service and adds them to the IServer.
+	 * @throws TException 
+	 * @throws EDAMSystemException 
+	 * @throws EDAMUserException 
+	 * @throws EDAMNotFoundException 
+	 */
+	private void getAllFiles() throws EDAMUserException, EDAMSystemException, TException, EDAMNotFoundException {
+		// First, get a list of all notebooks
+		List<Notebook> notebooks = noteStore.listNotebooks();
+
+		for (Notebook notebook : notebooks) {
+			// Next, search for the first 100 notes in this notebook, ordering by update date
+			NoteFilter filter = new NoteFilter();
+			filter.setNotebookGuid(notebook.getGuid());
+			filter.setOrder(NoteSortOrder.UPDATED.getValue());
+			filter.setAscending(true);
+			
+			NotesMetadataResultSpec resultSpec = new NotesMetadataResultSpec();
+			resultSpec.setIncludeTitle(true);
+			resultSpec.setIncludeNotebookGuid(true);
+			
+			NotesMetadataList notesList = noteStore.findNotesMetadata(filter, 0, 100, resultSpec);
+			for (NoteMetadata noteData : notesList.getNotes()) {
+				System.out.println("noteGuid : " + noteData.getGuid());
+				System.out.println("fileName : " + noteData.getTitle());
+				Note note = noteStore.getNote(noteData.getGuid(), false, true, false, false);
+				List<Resource> resources = note.getResources();
+				if (resources != null && resources.size() > 0) 
+				{
+					System.out.println("Aantal resources : " + note.getResources().size());
+					for (Resource resource : resources) {
+						byte[] fileContent = resource.getData().getBody();
+						String fileType = resource.getMime();
+						String fileName = resource.getAttributes().getFileName();
+						
+						System.out.println("fileContent : " + fileContent);
+						System.out.println("fileType : " + fileType);
+						System.out.println("fileName : " + fileName);
+					};
+					System.out.println(" * " + note);
+				}
+			}
+		}
 	}
 
 	/**
@@ -155,15 +204,9 @@ public class EvernotePlugin extends Plugin implements PluginInterface {
 	@Override
 	public void init(FileEventHandler fileEventHandler) {
 		super._fileEventHandler = fileEventHandler;
-		// Normally, a plugin initialization means that the server has been (re)strarted.
-		// This doesn't mean that the plugin hasn't been installed on the server before the restart.
-		// However, there is no functionality implemented (yet) to track and store the "previous" state of 
-		// a plugin. Therefore, a plugin initialization means that all the files from the relevant service
-		// have to be (re)added to the IServer as if they didn't exist before.
-		// Of course, the existing files can be skipped and be readded to the IServer, but even though we have to loop
-		// through all service files and check whether it already axists in the IServer..
-		// The ideal solution should also use a database to keep the server persistent even when it shuts down,
-		// as it happens in the clients.
+		// First of add all notes to the system
+		getAllNotes();
+		// And then add all files to the notes
 		getAllFiles();
 	}
 

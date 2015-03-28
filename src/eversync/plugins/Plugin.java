@@ -46,6 +46,10 @@ public class Plugin {
 		return installFiles;
 	}
 
+	protected void addAndLinkFile(String fileName, String fileId, String fileNameLabel) {
+		_fileEventHandler.addAndLinkFile(this, fileName, fileId, fileNameLabel);
+	}
+
 	protected void addFile(String fileName, String fileId, String fileNameLabel) {
 		_fileEventHandler.addFile(this, fileName, fileId, fileNameLabel);
 	}

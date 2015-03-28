@@ -95,7 +95,7 @@ public class FlickrPlugin extends Plugin implements PluginInterface {
 				Comment comment = (Comment) commentsIterator.next();
 				String id = String.join(".", photoId, comment.getId(), COMMENT_LABEL);
 				String label = String.join(" - ", comment.getAuthorName(), df.format(comment.getDateCreate()));
-				super.addFile(photoName, id, label);
+				super.addAndLinkFile(photoName, id, label);
 			}
 		} catch (FlickrException e) {
 			// TODO Auto-generated catch block

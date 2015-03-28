@@ -54,7 +54,25 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 		System.out.println("TEST ==> "+_iServer.getAllIdElements());
 		// output:
 		// TEST ==> [[Individual:EverSync], [Individual:EverSync], file.txt, file2.txt, .DS_Store, everfile.txt, testfile.pdf, textfile.txt]
+	}
 
+	@Override
+	public void addFile(String serviceName, String fileName, String fileId, String fileNameLabel) {
+		// Declare new file object
+		DigitalObject newFile = null;
+		
+		try {
+			// Add the new file
+			newFile = super.addFile(fileName, fileId);
+			if (fileNameLabel != null) {
+				newFile.setLabel(fileNameLabel);
+			}
+			newFile.addProperty("hostId", serviceName);
+			newFile.addProperty("hostType", "ExternalService");
+		} catch (CardinalityConstraintException e) {
+			log.severe("Could not create new DigitalObject");
+			e.printStackTrace();
+		}
 	}
 	
 	@Override

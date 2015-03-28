@@ -87,12 +87,14 @@ public class FileEventHandler {
 		client.sendMsg(syncResp);
 	}
 	
+	public void addAndLinkFile(Plugin plugin, String fileName, String fileId, String fileNameLabel) {
+		System.out.println("SYNC addAndLinkFile from Service: " + plugin.getPluginName() + " filePath: " + fileId);
+		_iServerManagerServicePlugin.addAndLinkFile(plugin.getPluginName(), fileName, fileId, fileNameLabel);
+	}
+	
 	public void addFile(Plugin plugin, String fileName, String fileId, String fileNameLabel) {
 		System.out.println("SYNC addFile from Service: " + plugin.getPluginName() + " filePath: " + fileId);
-		
-		_iServerManagerServicePlugin.addAndLinkFile(plugin.getPluginName(), fileName, fileId, fileNameLabel);
-		
-		//TODO: Search for files with the same name on the clients and link them
+		_iServerManagerServicePlugin.addFile(plugin.getPluginName(), fileName, fileId, fileNameLabel);
 	}
 	
 	public void modifyFile(EverSyncClient client, String fileName, String filePath) throws Exception {

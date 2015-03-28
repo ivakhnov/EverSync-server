@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Logger;
 
+import eversync.plugins.Evernote.EvernotePlugin;
 import eversync.plugins.Flickr.FlickrPlugin;
 import eversync.server.FileEventHandler;
 
@@ -43,21 +44,21 @@ public class PluginManager {
 	public void installPlugins() throws Exception {
 		log.info("Initializing plugins ...");
 
-//		log.info("-- Initializing Evernote plugin ..."); // login: ivakhnovpim
-//		EvernotePlugin evernote = new EvernotePlugin("S=s1:U=8de6c:E=14b6ad2d7e3:C=1441321abe6:P=1cd:A=en-devtoken:V=2:H=1d6bfa88d4e429fe3918e4584561e51e");
-//		installPlugin("Evernote", evernote);
+		log.info("-- Initializing Evernote plugin ..."); // login: ivakhnovpim
+		EvernotePlugin evernote = new EvernotePlugin("S=s1:U=8de6c:E=1539a0de540:C=14c425cb838:P=1cd:A=en-devtoken:V=2:H=0087ea0c97f17d7b445052d6b6c84ee9");
+		installPlugin("Evernote", evernote);
 //		
 //		log.info("-- Initializing Facebook plugin ...");
 //		FacebookPlugin facebook = new FacebookPlugin("testToken");
 //		installPlugin("Facebook", facebook);
 		
-		log.info("-- Initializing Flickr plugin ...");
-		FlickrPlugin flickr = new FlickrPlugin(
-				"ddbf3a3f6229d256481d4aeabaa99a63", 
-				"ca346c4fa57f2106",
-				"72157650764299927-66c79182ad3b0d5e",
-				"8a38b15c114110ce");
-		installPlugin("Flickr", flickr);
+//		log.info("-- Initializing Flickr plugin ...");
+//		FlickrPlugin flickr = new FlickrPlugin(
+//				"ddbf3a3f6229d256481d4aeabaa99a63", 
+//				"ca346c4fa57f2106",
+//				"72157650764299927-66c79182ad3b0d5e",
+//				"8a38b15c114110ce");
+//		installPlugin("Flickr", flickr);
 
 		log.info("All plugins initialized successfully!");
 	}

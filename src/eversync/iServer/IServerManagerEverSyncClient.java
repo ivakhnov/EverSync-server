@@ -69,7 +69,26 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 		// output:
 		// TEST ==> [[Individual:EverSync], [Individual:EverSync], file.txt, file2.txt, .DS_Store, everfile.txt, testfile.pdf, textfile.txt]
 	}
-	
+
+	@Override
+	public void addFile(String clientId, String fileName, String filePath, String fileNameLabel) {
+		// Declare new file object
+		DigitalObject newFile = null;
+		
+		try {
+			// Add the new file
+			newFile = super.addFile(fileName, filePath);
+			if (fileNameLabel != null) {
+				newFile.setLabel(fileNameLabel);
+			}
+			newFile.addProperty("hostId", clientId);
+			newFile.addProperty("hostType", "EverSyncClient");
+		} catch (CardinalityConstraintException e) {
+			log.severe("Could not create new DigitalObject");
+			e.printStackTrace();
+		}
+	}
+
 	@Override
 	public JSONArray getAllLinkedFiles(String fileURI) {
 		return super.getAllLinkedFilesRecursively("EverSyncClient", fileURI);
