@@ -12,4 +12,6 @@ public final class Constants {
 	
 	public static final String SERVICE_PLUGIN = "ExternalService";
 	public static final String EVERSYNC_CLIENT = "EverSyncClient";
+	public static final String HOST_TYPE = "hostType";
+	public static final String HOST_ID = "hostId";
 }

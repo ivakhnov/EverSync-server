@@ -12,6 +12,7 @@ import org.st.iserver.DigitalObject;
 import org.st.iserver.util.Property;
 
 public class IServerManagerEverSyncClient extends IServerManagerSuper implements IServerManagerInterface {
+	
 	// Logger for debugging purposes
 	private static final Logger log = Logger.getLogger(IServerManagerEverSyncClient.class.getName());
 	
@@ -37,8 +38,8 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 			if (fileNameLabel != null) {
 				newFile.setLabel(fileNameLabel);
 			}
-			newFile.addProperty("hostId", clientId);
-			newFile.addProperty("hostType", EVERSYNC_CLIENT);
+			newFile.addProperty(HOST_ID, clientId);
+			newFile.addProperty(HOST_TYPE, EVERSYNC_CLIENT);
 		} catch (CardinalityConstraintException e) {
 			log.severe("Could not create new DigitalObject");
 			e.printStackTrace();
@@ -49,7 +50,7 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 		
 		// Automatically link the new file with the existing copies on other devices
 		for(DigitalObject file : localFilesToLink){
-			Property hostType = file.getProperty("hostType");
+			Property hostType = file.getProperty(HOST_TYPE);
 			if (!hostType.getValue().equals(EVERSYNC_CLIENT))
 				continue;
 			
@@ -59,7 +60,7 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 		
 		// Automatically link the new file with the existing copies on third party services
 		for(DigitalObject file : remoteFilesToLink) {
-			Property hostType = file.getProperty("hostType");
+			Property hostType = file.getProperty(HOST_TYPE);
 			if (hostType.getValue().equals(EVERSYNC_CLIENT))
 				continue;
 			
@@ -87,8 +88,8 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 			if (fileNameLabel != null) {
 				newFile.setLabel(fileNameLabel);
 			}
-			newFile.addProperty("hostId", clientId);
-			newFile.addProperty("hostType", EVERSYNC_CLIENT);
+			newFile.addProperty(HOST_ID, clientId);
+			newFile.addProperty(HOST_TYPE, EVERSYNC_CLIENT);
 		} catch (CardinalityConstraintException e) {
 			log.severe("Could not create new DigitalObject");
 			e.printStackTrace();
@@ -110,11 +111,11 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 	@Override
 	public void searchAndLinkRelatedByUri(String fileUri) {
 		DigitalObject rootFile = _iServer.getDigitalObjectUrl(fileUri);
-		String rootFileHostId = rootFile.getProperty("hostId").getValue();
+		String rootFileHostId = rootFile.getProperty(HOST_ID).getValue();
 		HashSet<DigitalObject> remoteFilesToLink = _iServer.getAllDigitalObjects(rootFile.getName());
 		for(DigitalObject file : remoteFilesToLink) {
-			String hostType = file.getProperty("hostType").getValue();
-			String hostId = file.getProperty("hostId").getValue();
+			String hostType = file.getProperty(HOST_TYPE).getValue();
+			String hostId = file.getProperty(HOST_ID).getValue();
 			if(hostId.equals(rootFileHostId))
 				continue;
 			

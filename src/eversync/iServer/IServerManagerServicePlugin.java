@@ -11,6 +11,7 @@ import org.st.iserver.DigitalObject;
 import org.st.iserver.util.Property;
 
 public class IServerManagerServicePlugin extends IServerManagerSuper implements IServerManagerInterface {
+	
 	// Logger for debugging purposes
 	private static final Logger log = Logger.getLogger(IServerManagerServicePlugin.class.getName());
 
@@ -29,8 +30,8 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 			if (fileNameLabel != null) {
 				newFile.setLabel(fileNameLabel);
 			}
-			newFile.addProperty("hostId", serviceName);
-			newFile.addProperty("hostType", SERVICE_PLUGIN);
+			newFile.addProperty(HOST_ID, serviceName);
+			newFile.addProperty(HOST_TYPE, SERVICE_PLUGIN);
 		} catch (CardinalityConstraintException e) {
 			log.severe("Could not create new DigitalObject");
 			e.printStackTrace();
@@ -42,8 +43,8 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 		// Automatically link the new file with the existing copies on third party services AND local files
 		// (in order to link to local files via UI-client confirmation you have to change this for loop and/or add another one
 		for(DigitalObject file : remoteFilesToLink){
-			Property hostType = file.getProperty("hostType");
-			Property hostId = file.getProperty("hostId");
+			Property hostType = file.getProperty(HOST_TYPE);
+			Property hostId = file.getProperty(HOST_ID);
 			if (hostId.equals(serviceName) || !hostType.equals(SERVICE_PLUGIN))
 				continue; // don't link to yourself
 			
@@ -77,8 +78,8 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 			if (fileNameLabel != null) {
 				newFile.setLabel(fileNameLabel);
 			}
-			newFile.addProperty("hostId", serviceName);
-			newFile.addProperty("hostType", SERVICE_PLUGIN);
+			newFile.addProperty(HOST_ID, serviceName);
+			newFile.addProperty(HOST_TYPE, SERVICE_PLUGIN);
 		} catch (CardinalityConstraintException e) {
 			log.severe("Could not create new DigitalObject");
 			e.printStackTrace();
@@ -96,11 +97,11 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 	@Override
 	public void searchAndLinkRelatedByUri(String fileUri) {
 		DigitalObject rootFile = _iServer.getDigitalObjectUrl(fileUri);
-		String rootFileHostId = rootFile.getProperty("hostId").getValue();
+		String rootFileHostId = rootFile.getProperty(HOST_ID).getValue();
 		HashSet<DigitalObject> remoteFilesToLink = _iServer.getAllDigitalObjects(rootFile.getName());
 		for(DigitalObject file : remoteFilesToLink) {
-			String hostType = file.getProperty("hostType").getValue();
-			String hostId = file.getProperty("hostId").getValue();
+			String hostType = file.getProperty(HOST_TYPE).getValue();
+			String hostId = file.getProperty(HOST_ID).getValue();
 			if (hostId.equals(rootFileHostId) || !hostType.equals(SERVICE_PLUGIN))
 				continue; // don't link to yourself
 			
@@ -135,8 +136,8 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 		
 		HashSet<DigitalObject> remoteFilesToLink = _iServer.getAllDigitalObjects(fileName);
 		for(DigitalObject file : remoteFilesToLink) {
-			String fileHostType = file.getProperty("hostType").getValue();
-			String fileHostId = file.getProperty("hostId").getValue();
+			String fileHostType = file.getProperty(HOST_TYPE).getValue();
+			String fileHostId = file.getProperty(HOST_ID).getValue();
 			
 			if (!fileHostType.equals(SERVICE_PLUGIN) || !fileHostId.equals(serviceName))
 				continue;
