@@ -40,16 +40,14 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 		if (newFile == null)
 			return; // Stop execution if there was an exception on creation
 		
-		// Automatically link the new file with the existing copies on third party services AND local files
+		// Automatically link the new file with the existing LOCAL copies
 		// (in order to link to local files via UI-client confirmation you have to change this for loop and/or add another one
 		for(DigitalObject file : remoteFilesToLink){
-			Property hostType = file.getProperty(HOST_TYPE);
-			Property hostId = file.getProperty(HOST_ID);
-			if (hostId.equals(serviceName) || !hostType.equals(SERVICE_PLUGIN))
+			String hostType = file.getProperty(HOST_TYPE).getValue();
+			if (!hostType.equals(EVERSYNC_CLIENT))
 				continue; // don't link to yourself
 			
 			super.linkFilesDirected(file, newFile);
-			super.linkFilesDirected(newFile, file);
 		}
 		
 		// TODO: Remove this test code
@@ -134,8 +132,8 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 	private String searchFile(String serviceName, String fileName) {
 		String resultUri = new String();
 		
-		HashSet<DigitalObject> remoteFilesToLink = _iServer.getAllDigitalObjects(fileName);
-		for(DigitalObject file : remoteFilesToLink) {
+		HashSet<DigitalObject> remoteFiles = _iServer.getAllDigitalObjects(fileName);
+		for(DigitalObject file : remoteFiles) {
 			String fileHostType = file.getProperty(HOST_TYPE).getValue();
 			String fileHostId = file.getProperty(HOST_ID).getValue();
 			

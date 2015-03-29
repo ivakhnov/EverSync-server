@@ -194,7 +194,7 @@ public class EvernotePlugin extends Plugin implements PluginInterface {
 						
 						String fileUri = super.addFile(fileName, fileId, fileName);
 						super.linkFilesDirected(noteId, fileUri);
-						super.searchAndLinkRelated(fileUri);
+						//super.searchAndLinkRelated(fileUri);
 					};
 				}
 			}

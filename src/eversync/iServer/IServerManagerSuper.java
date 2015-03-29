@@ -149,7 +149,7 @@ public class IServerManagerSuper {
 	}
 	
 	private void getParentOrSelfRecursion(Entity object, HashSet<DigitalObject> currentRootItems) {
-		HashSet<Entity> sources = object.getMySources();
+		HashSet<Entity> sources = object.getMyParents();
 		if (sources.size() > 0) {
 			for (Entity entity : sources){
 				getParentOrSelfRecursion(entity, currentRootItems);
