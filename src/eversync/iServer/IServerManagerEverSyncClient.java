@@ -60,12 +60,13 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 		
 		// Automatically link the new file with the existing copies on third party services
 		for(DigitalObject file : remoteFilesToLink) {
-			Property hostType = file.getProperty(HOST_TYPE);
-			if (hostType.getValue().equals(EVERSYNC_CLIENT))
+			String hostType = file.getProperty(HOST_TYPE).getValue();
+			String hostId = file.getProperty(HOST_ID).getValue();
+			if (hostType.equals(EVERSYNC_CLIENT))
 				continue;
 			
 			// Get the root taxonomy items
-			HashSet<DigitalObject> taxonomyRootItems = super.getRootTaxonomyItems(file);
+			HashSet<DigitalObject> taxonomyRootItems = super.getRootTaxonomyItems(hostId, file);
 			for (DigitalObject taxonomyRootItem : taxonomyRootItems) {
 				super.linkFilesDirected(newFile, taxonomyRootItem);
 			}
@@ -126,7 +127,7 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 			
 			if(!hostType.equals(EVERSYNC_CLIENT)) {
 				// Get the root taxonomy items
-				HashSet<DigitalObject> taxonomyRootItems = super.getRootTaxonomyItems(file);
+				HashSet<DigitalObject> taxonomyRootItems = super.getRootTaxonomyItems(hostId, file);
 				for (DigitalObject taxonomyRootItem : taxonomyRootItems) {
 					super.linkFilesDirected(rootFile, taxonomyRootItem);
 				}

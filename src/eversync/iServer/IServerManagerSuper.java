@@ -1,5 +1,7 @@
 package eversync.iServer;
 
+import static eversync.iServer.Constants.*;
+
 import java.util.HashSet;
 import java.util.logging.Logger;
 
@@ -17,6 +19,7 @@ import org.st.iserver.util.Property;
 import eversync.plugins.Plugin;
 
 public class IServerManagerSuper {
+
 	// Logger for debugging purposes
 	private static final Logger log = Logger.getLogger(IServerManagerSuper.class.getName());
 
@@ -70,9 +73,9 @@ public class IServerManagerSuper {
 		String fileLabel = obj.getLabel();
 		
 		try {
-			result.put("name", fileName);
-			result.put("uri", fileUri);
-			result.put("nameLabel", fileLabel);
+			result.put(FILE_NAME, fileName);
+			result.put(FILE_URI, fileUri);
+			result.put(FILE_LABEL, fileLabel);
 			
 			HashSet<Property> propertiesSet = obj.getProperties();
 			for(Property prop : propertiesSet) {
@@ -119,7 +122,7 @@ public class IServerManagerSuper {
 		getLinkedFilesRecursion(aFile, allLinkedFiles);
 		
 		for(Entity file : allLinkedFiles) {
-			if(file.getProperty("hostType").getValue().equals(hostType)) {
+			if(file.getProperty(HOST_TYPE).getValue().equals(hostType)) {
 				JSONObject propertiesJson = digitalObjectToJson((DigitalObject)file);
 				results.put(propertiesJson);
 			}
@@ -131,10 +134,10 @@ public class IServerManagerSuper {
 		JSONArray results = new JSONArray();
 		
 		DigitalObject aFile =  _iServer.getDigitalObjectUrl(fileURI);
-		HashSet<Entity> linkedFiles = aFile.getEntitiesDirectlyLinkedToMe();
+		HashSet<Entity> linkedFiles = aFile.getMyChildren();
 		
 		for(Entity file : linkedFiles) {
-			if(file.getProperty("hostType").getValue().equals(hostType)) {
+			if(file.getProperty(HOST_TYPE).getValue().equals(hostType)) {
 				JSONObject propertiesJson = digitalObjectToJson((DigitalObject)file);
 				results.put(propertiesJson);
 			}
@@ -142,17 +145,20 @@ public class IServerManagerSuper {
 		return results;
 	}
 	
-	protected HashSet<DigitalObject> getRootTaxonomyItems(DigitalObject startingFile) {
+	protected HashSet<DigitalObject> getRootTaxonomyItems(String hostId, DigitalObject startingFile) {
 		HashSet<DigitalObject> rootTaxonomyItems = new HashSet<DigitalObject>();
-		getParentOrSelfRecursion(startingFile, rootTaxonomyItems);
+		getParentOrSelfRecursion(hostId, startingFile, rootTaxonomyItems);
 		return rootTaxonomyItems;
 	}
 	
-	private void getParentOrSelfRecursion(Entity object, HashSet<DigitalObject> currentRootItems) {
+	private void getParentOrSelfRecursion(String hostId, Entity object, HashSet<DigitalObject> currentRootItems) {
 		HashSet<Entity> sources = object.getMyParents();
 		if (sources.size() > 0) {
 			for (Entity entity : sources){
-				getParentOrSelfRecursion(entity, currentRootItems);
+				String entityHostId = entity.getProperty(HOST_ID).getValue();
+				if (entityHostId.equals(hostId)) {
+					getParentOrSelfRecursion(hostId, entity, currentRootItems);
+				}
 			}
 		} else {
 			// A HashSet refuses adding a duplicate entry, so let's rely on that

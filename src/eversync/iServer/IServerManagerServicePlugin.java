@@ -82,7 +82,7 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 			log.severe("Could not create new DigitalObject");
 			e.printStackTrace();
 		}
-		return newFile.getUri();
+		return fileId;
 	}
 	
 	/**
