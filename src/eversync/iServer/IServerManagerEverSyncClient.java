@@ -54,6 +54,7 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 				continue;
 			
 			super.linkFilesDirected(file, newFile);
+			super.linkFilesDirected(newFile, file);
 		}
 		
 		// Automatically link the new file with the existing copies on third party services
@@ -62,7 +63,11 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 			if (hostType.getValue().equals(EVERSYNC_CLIENT))
 				continue;
 			
-			super.linkFilesDirected(newFile, file);
+			// Get the root taxonomy items
+			HashSet<DigitalObject> taxonomyRootItems = super.getRootTaxonomyItems(file);
+			for (DigitalObject taxonomyRootItem : taxonomyRootItems) {
+				super.linkFilesDirected(newFile, taxonomyRootItem);
+			}
 		}
 		
 		// TODO: Remove this test code

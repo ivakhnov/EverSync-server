@@ -16,15 +16,6 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 
 	@Override
 	public void addAndLinkFile(String serviceName, String fileName, String fileId, String fileNameLabel) {
-		// Since our file linking mechanism is based on file names, 
-		// we don't allow a service to add multiple files with the same file name. Those files are then
-		// considered to be duplicates for one single file.
-		String duplicateUri = searchFile(serviceName, fileName);
-		if (duplicateUri != null && !duplicateUri.isEmpty()) {
-			log.info("File named: " + fileName + " already exists in service: " + serviceName);
-			return;
-		}
-		
 		// Files on different third party services with the same are considered as POTENTIAL copies
 		// and have to be linked after user's confirmation.
 		HashSet<DigitalObject> remoteFilesToLink = _iServer.getAllDigitalObjects(fileName);
@@ -53,10 +44,11 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 		for(DigitalObject file : remoteFilesToLink){
 			Property hostType = file.getProperty("hostType");
 			Property hostId = file.getProperty("hostId");
-			if (hostId.getValue().equals(serviceName))
+			if (hostId.equals(serviceName) || !hostType.equals(SERVICE_PLUGIN))
 				continue; // don't link to yourself
 			
 			super.linkFilesDirected(file, newFile);
+			super.linkFilesDirected(newFile, file);
 		}
 		
 		// TODO: Remove this test code
