@@ -27,6 +27,8 @@ import eversync.server.FileEventHandler;
 
 public class EvernotePlugin extends Plugin implements PluginInterface {
 	
+	private static final String NOTE_LABEL = "EvernoteNote";
+	
 	private UserStoreClient userStore;
 	private NoteStoreClient noteStore;
 	
@@ -152,7 +154,9 @@ public class EvernotePlugin extends Plugin implements PluginInterface {
 	}
 	
 	/**
-	 * Collects all files and notes from the service and adds them to the IServer.
+	 * Collects all files and notes from the Evernote service and adds them to the IServer.
+	 * This method is used to construct the two hops: 
+	 * local file => note => remote file inside the note
 	 * @throws TException 
 	 * @throws EDAMSystemException 
 	 * @throws EDAMUserException 
@@ -175,23 +179,23 @@ public class EvernotePlugin extends Plugin implements PluginInterface {
 			
 			NotesMetadataList notesList = noteStore.findNotesMetadata(filter, 0, 100, resultSpec);
 			for (NoteMetadata noteData : notesList.getNotes()) {
-				System.out.println("noteGuid : " + noteData.getGuid());
-				System.out.println("fileName : " + noteData.getTitle());
+				
+				// Add the note to the iServer
+				String noteId = String.join(".", noteData.getGuid(), NOTE_LABEL);
+				super.addFile(noteId, noteId, noteData.getTitle());
+				
 				Note note = noteStore.getNote(noteData.getGuid(), false, true, false, false);
 				List<Resource> resources = note.getResources();
 				if (resources != null && resources.size() > 0) 
 				{
-					System.out.println("Aantal resources : " + note.getResources().size());
 					for (Resource resource : resources) {
-						byte[] fileContent = resource.getData().getBody();
-						String fileType = resource.getMime();
+						String fileId = resource.getGuid();
 						String fileName = resource.getAttributes().getFileName();
 						
-						System.out.println("fileContent : " + fileContent);
-						System.out.println("fileType : " + fileType);
-						System.out.println("fileName : " + fileName);
+						String fileUri = super.addFile(fileName, fileId, fileName);
+						super.linkFilesDirected(noteId, fileUri);
+						super.searchAndLinkRelated(fileUri);
 					};
-					System.out.println(" * " + note);
 				}
 			}
 		}
@@ -204,10 +208,13 @@ public class EvernotePlugin extends Plugin implements PluginInterface {
 	@Override
 	public void init(FileEventHandler fileEventHandler) {
 		super._fileEventHandler = fileEventHandler;
-		// First of add all notes to the system
-		getAllNotes();
-		// And then add all files to the notes
-		getAllFiles();
+		try {
+			// Extract all notes and files and relate them
+			getAllFiles();
+		} catch (EDAMUserException | EDAMSystemException | TException | EDAMNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override

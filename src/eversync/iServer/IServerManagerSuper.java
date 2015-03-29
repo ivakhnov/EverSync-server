@@ -14,6 +14,8 @@ import org.st.iserver.IServerInterface;
 import org.st.iserver.Individual;
 import org.st.iserver.util.Property;
 
+import eversync.plugins.Plugin;
+
 public class IServerManagerSuper {
 	// Logger for debugging purposes
 	private static final Logger log = Logger.getLogger(IServerManagerSuper.class.getName());
@@ -34,13 +36,19 @@ public class IServerManagerSuper {
 		return fileObject;
 	}
 
-	protected void linkFiles(DigitalObject source, DigitalObject target) {
+	protected void linkFilesDirected(DigitalObject source, DigitalObject target) {
 		try {
 			_iServer.createNavigationalLink("NavigationalLink", source, target, _creator);
 		} catch (CardinalityConstraintException e) {
 			log.severe("Could not create a link between two files!");
 			e.printStackTrace();
 		}
+	}
+	
+	public void linkFilesDirected(String parentFileUri, String childFileUri) {
+		DigitalObject parentFile = _iServer.getDigitalObjectUrl(parentFileUri);
+		DigitalObject childFile = _iServer.getDigitalObjectUrl(childFileUri);
+		this.linkFilesDirected(parentFile, childFile);
 	}
 	
 	/**
@@ -132,5 +140,24 @@ public class IServerManagerSuper {
 			}
 		}
 		return results;
+	}
+	
+	protected HashSet<DigitalObject> getRootTaxonomyItems(DigitalObject startingFile) {
+		HashSet<DigitalObject> rootTaxonomyItems = new HashSet<DigitalObject>();
+		getParentOrSelfRecursion(startingFile, rootTaxonomyItems);
+		return rootTaxonomyItems;
+	}
+	
+	private void getParentOrSelfRecursion(Entity object, HashSet<DigitalObject> currentRootItems) {
+		HashSet<Entity> sources = object.getMySources();
+		if (sources.size() > 0) {
+			for (Entity entity : sources){
+				getParentOrSelfRecursion(entity, currentRootItems);
+			}
+		} else {
+			// A HashSet refuses adding a duplicate entry, so let's rely on that
+			currentRootItems.add((DigitalObject)object);
+			return;
+		}
 	}
 }

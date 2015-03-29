@@ -3,3 +3,4 @@
  */
 
 .jqueryFileTree LI.plugin_evernote { background: url(icon.png) left top no-repeat; }
+.jqueryFileTree LI.ext_EvernoteNote { background: url(note2.png) left top no-repeat; }

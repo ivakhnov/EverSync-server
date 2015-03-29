@@ -1,5 +1,7 @@
 package eversync.iServer;
 
+import static eversync.iServer.Constants.*;
+
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.logging.Logger;
@@ -12,8 +14,7 @@ import org.st.iserver.util.Property;
 public class IServerManagerEverSyncClient extends IServerManagerSuper implements IServerManagerInterface {
 	// Logger for debugging purposes
 	private static final Logger log = Logger.getLogger(IServerManagerEverSyncClient.class.getName());
-
-
+	
 	@Override
 	public void addAndLinkFile(String clientId, String fileName, String filePath, String fileNameLabel) {
 		// Firstly unify and standardize the file path
@@ -37,7 +38,7 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 				newFile.setLabel(fileNameLabel);
 			}
 			newFile.addProperty("hostId", clientId);
-			newFile.addProperty("hostType", "EverSyncClient");
+			newFile.addProperty("hostType", EVERSYNC_CLIENT);
 		} catch (CardinalityConstraintException e) {
 			log.severe("Could not create new DigitalObject");
 			e.printStackTrace();
@@ -49,19 +50,19 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 		// Automatically link the new file with the existing copies on other devices
 		for(DigitalObject file : localFilesToLink){
 			Property hostType = file.getProperty("hostType");
-			if (!hostType.getValue().equals("EverSyncClient"))
+			if (!hostType.getValue().equals(EVERSYNC_CLIENT))
 				continue;
 			
-			super.linkFiles(file, newFile);
+			super.linkFilesDirected(file, newFile);
 		}
 		
 		// Automatically link the new file with the existing copies on third party services
 		for(DigitalObject file : remoteFilesToLink) {
 			Property hostType = file.getProperty("hostType");
-			if (hostType.getValue().equals("EverSyncClient"))
+			if (hostType.getValue().equals(EVERSYNC_CLIENT))
 				continue;
 			
-			super.linkFiles(newFile, file);
+			super.linkFilesDirected(newFile, file);
 		}
 		
 		// TODO: Remove this test code
@@ -71,7 +72,7 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 	}
 
 	@Override
-	public void addFile(String clientId, String fileName, String filePath, String fileNameLabel) {
+	public String addFile(String clientId, String fileName, String filePath, String fileNameLabel) {
 		// Declare new file object
 		DigitalObject newFile = null;
 		
@@ -82,21 +83,59 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 				newFile.setLabel(fileNameLabel);
 			}
 			newFile.addProperty("hostId", clientId);
-			newFile.addProperty("hostType", "EverSyncClient");
+			newFile.addProperty("hostType", EVERSYNC_CLIENT);
 		} catch (CardinalityConstraintException e) {
 			log.severe("Could not create new DigitalObject");
 			e.printStackTrace();
 		}
+		return newFile.getUri();
 	}
 
+	/**
+	 * All the files with the same file name as the file of which the uri is given, will be linked.
+	 * Note that this is the implementation for the EverSync clients.
+	 * The files of the EverSync clients get a bidirectional link (i.e. actually 2 links, from-to and to-from).
+	 * The files on the third party service will be linked as follows:
+	 * 		local file -> remote file (where this is the root taxonomy file, a.k.a 
+	 * 		the highest parent in case of nested self-relations because plugins can have their own hierarchy,
+	 * 		for example: book -> chapter -> page -> paragraph -> ...)
+	 * Linking files on EverSync clients 
+	 * @param fileUri
+	 */
+	@Override
+	public void searchAndLinkRelatedByUri(String fileUri) {
+		DigitalObject rootFile = _iServer.getDigitalObjectUrl(fileUri);
+		String rootFileHostId = rootFile.getProperty("hostId").getValue();
+		HashSet<DigitalObject> remoteFilesToLink = _iServer.getAllDigitalObjects(rootFile.getName());
+		for(DigitalObject file : remoteFilesToLink) {
+			String hostType = file.getProperty("hostType").getValue();
+			String hostId = file.getProperty("hostId").getValue();
+			if(hostId.equals(rootFileHostId))
+				continue;
+			
+			if(hostType.equals(EVERSYNC_CLIENT)) {
+				super.linkFilesDirected(file, rootFile);
+				super.linkFilesDirected(rootFile, file);
+			}
+			
+			if(!hostType.equals(EVERSYNC_CLIENT)) {
+				// Get the root taxonomy items
+				HashSet<DigitalObject> taxonomyRootItems = super.getRootTaxonomyItems(file);
+				for (DigitalObject taxonomyRootItem : taxonomyRootItems) {
+					super.linkFilesDirected(rootFile, taxonomyRootItem);
+				}
+			}
+		}
+	}
+	
 	@Override
 	public JSONArray getAllLinkedFiles(String fileURI) {
-		return super.getAllLinkedFilesRecursively("EverSyncClient", fileURI);
+		return super.getAllLinkedFilesRecursively(EVERSYNC_CLIENT, fileURI);
 	}
 
 	@Override
 	public JSONArray getLinkedFiles(String fileURI) {
-		return super.getLinkedFiles("EverSyncClient", fileURI);
+		return super.getLinkedFiles(EVERSYNC_CLIENT, fileURI);
 	}
 
 	@Override

@@ -92,9 +92,19 @@ public class FileEventHandler {
 		_iServerManagerServicePlugin.addAndLinkFile(plugin.getPluginName(), fileName, fileId, fileNameLabel);
 	}
 	
-	public void addFile(Plugin plugin, String fileName, String fileId, String fileNameLabel) {
+	public String addFile(Plugin plugin, String fileName, String fileId, String fileNameLabel) {
 		System.out.println("SYNC addFile from Service: " + plugin.getPluginName() + " filePath: " + fileId);
-		_iServerManagerServicePlugin.addFile(plugin.getPluginName(), fileName, fileId, fileNameLabel);
+		return _iServerManagerServicePlugin.addFile(plugin.getPluginName(), fileName, fileId, fileNameLabel);
+	}
+	
+	public void linkFilesDirected(Plugin plugin, String parentFileUri, String childFileUri) {
+		System.out.println("SYNC Service: " + plugin.getPluginName() + " links file: " + parentFileUri + " to file: " +childFileUri);
+		_iServerManagerServicePlugin.linkFilesDirected(parentFileUri, childFileUri);
+	}
+	
+	public void searchAndLinkRelated(Plugin plugin, String fileUri) {
+		_iServerManagerServicePlugin.searchAndLinkRelatedByUri(fileUri);
+		_iServerManagerEverSyncClient.searchAndLinkRelatedByUri(fileUri);
 	}
 	
 	public void modifyFile(EverSyncClient client, String fileName, String filePath) throws Exception {

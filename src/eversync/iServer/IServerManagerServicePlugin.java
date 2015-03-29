@@ -1,7 +1,8 @@
 package eversync.iServer;
 
+import static eversync.iServer.Constants.*;
+
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.logging.Logger;
 
 import org.json.JSONArray;
@@ -13,9 +14,17 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 	// Logger for debugging purposes
 	private static final Logger log = Logger.getLogger(IServerManagerServicePlugin.class.getName());
 
-
 	@Override
 	public void addAndLinkFile(String serviceName, String fileName, String fileId, String fileNameLabel) {
+		// Since our file linking mechanism is based on file names, 
+		// we don't allow a service to add multiple files with the same file name. Those files are then
+		// considered to be duplicates for one single file.
+		String duplicateUri = searchFile(serviceName, fileName);
+		if (duplicateUri != null && !duplicateUri.isEmpty()) {
+			log.info("File named: " + fileName + " already exists in service: " + serviceName);
+			return;
+		}
+		
 		// Files on different third party services with the same are considered as POTENTIAL copies
 		// and have to be linked after user's confirmation.
 		HashSet<DigitalObject> remoteFilesToLink = _iServer.getAllDigitalObjects(fileName);
@@ -30,7 +39,7 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 				newFile.setLabel(fileNameLabel);
 			}
 			newFile.addProperty("hostId", serviceName);
-			newFile.addProperty("hostType", "ExternalService");
+			newFile.addProperty("hostType", SERVICE_PLUGIN);
 		} catch (CardinalityConstraintException e) {
 			log.severe("Could not create new DigitalObject");
 			e.printStackTrace();
@@ -47,7 +56,7 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 			if (hostId.getValue().equals(serviceName))
 				continue; // don't link to yourself
 			
-			super.linkFiles(file, newFile);
+			super.linkFilesDirected(file, newFile);
 		}
 		
 		// TODO: Remove this test code
@@ -57,7 +66,16 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 	}
 
 	@Override
-	public void addFile(String serviceName, String fileName, String fileId, String fileNameLabel) {
+	public String addFile(String serviceName, String fileName, String fileId, String fileNameLabel) {		
+		// Since our file linking mechanism is based on file names, 
+		// we don't allow a service to add multiple files with the same file name. Those files are then
+		// considered to be duplicates for one single file.
+		String duplicateUri = searchFile(serviceName, fileName);
+		if (duplicateUri != null && !duplicateUri.isEmpty()) {
+			log.info("File named: " + fileName + " already exists in service: " + serviceName);
+			return duplicateUri;
+		}
+		
 		// Declare new file object
 		DigitalObject newFile = null;
 		
@@ -68,22 +86,46 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 				newFile.setLabel(fileNameLabel);
 			}
 			newFile.addProperty("hostId", serviceName);
-			newFile.addProperty("hostType", "ExternalService");
+			newFile.addProperty("hostType", SERVICE_PLUGIN);
 		} catch (CardinalityConstraintException e) {
 			log.severe("Could not create new DigitalObject");
 			e.printStackTrace();
+		}
+		return newFile.getUri();
+	}
+	
+	/**
+	 * All the files with the same file name as the file of which the uri is given, will be linked.
+	 * Note that this is the implementation for the service plugins.
+	 * The files of the service plugins get a bidirectional link (i.e. actually 2 links, from-to and to-from)
+	 * The 'local' files on the EverSync clients are not considered in this linking procedure.
+	 * @param fileUri
+	 */
+	@Override
+	public void searchAndLinkRelatedByUri(String fileUri) {
+		DigitalObject rootFile = _iServer.getDigitalObjectUrl(fileUri);
+		String rootFileHostId = rootFile.getProperty("hostId").getValue();
+		HashSet<DigitalObject> remoteFilesToLink = _iServer.getAllDigitalObjects(rootFile.getName());
+		for(DigitalObject file : remoteFilesToLink) {
+			String hostType = file.getProperty("hostType").getValue();
+			String hostId = file.getProperty("hostId").getValue();
+			if (hostId.equals(rootFileHostId) || !hostType.equals(SERVICE_PLUGIN))
+				continue; // don't link to yourself
+			
+			super.linkFilesDirected(file, rootFile);
+			super.linkFilesDirected(rootFile, file);
 		}
 	}
 	
 	@Override
 	public JSONArray getAllLinkedFiles(String fileName) {
 		String fileUri = _iServer.getDigitalObject(fileName).getUri();
-		return super.getAllLinkedFilesRecursively("ExternalService", fileUri);
+		return super.getAllLinkedFilesRecursively(SERVICE_PLUGIN, fileUri);
 	}
 	
 	@Override
 	public JSONArray getLinkedFiles(String fileURI) {
-		return super.getLinkedFiles("ExternalService", fileURI);
+		return super.getLinkedFiles(SERVICE_PLUGIN, fileURI);
 	}
 	
 	public void deleteFile(String fileName) {
@@ -94,6 +136,25 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 	public void modifyFile(String deviceId, String fileName) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	private String searchFile(String serviceName, String fileName) {
+		String resultUri = new String();
+		
+		HashSet<DigitalObject> remoteFilesToLink = _iServer.getAllDigitalObjects(fileName);
+		for(DigitalObject file : remoteFilesToLink) {
+			String fileHostType = file.getProperty("hostType").getValue();
+			String fileHostId = file.getProperty("hostId").getValue();
+			
+			if (!fileHostType.equals(SERVICE_PLUGIN) || !fileHostId.equals(serviceName))
+				continue;
+			
+			if (file.getName().equals(fileName)) {
+				resultUri = file.getUri();
+				break; // stop the loop
+			}
+		}
+		return resultUri;
 	}
 
 }

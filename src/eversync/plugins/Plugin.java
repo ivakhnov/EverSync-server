@@ -50,7 +50,15 @@ public class Plugin {
 		_fileEventHandler.addAndLinkFile(this, fileName, fileId, fileNameLabel);
 	}
 
-	protected void addFile(String fileName, String fileId, String fileNameLabel) {
-		_fileEventHandler.addFile(this, fileName, fileId, fileNameLabel);
+	protected String addFile(String fileName, String fileId, String fileNameLabel) {
+		return _fileEventHandler.addFile(this, fileName, fileId, fileNameLabel);
+	}
+	
+	protected void linkFilesDirected(String parentFileUri, String childFileUri) {
+		_fileEventHandler.linkFilesDirected(this, parentFileUri, childFileUri);
+	}
+	
+	protected void searchAndLinkRelated(String fileUri) {
+		_fileEventHandler.searchAndLinkRelated(this, fileUri);
 	}
 }
