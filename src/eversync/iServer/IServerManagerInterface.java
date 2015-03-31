@@ -10,8 +10,6 @@ public interface IServerManagerInterface {
 	
 	public void linkFilesDirected(String parentFileUri, String childFileUri);
 	
-	public void searchAndLinkRelatedByUri(String fileUri);
-
 	public JSONArray getAllLinkedFiles(String fileURI);
 
 	public JSONArray getLinkedFiles(String fileURI);

@@ -97,43 +97,6 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 		}
 		return newFile.getUri();
 	}
-
-	/**
-	 * All the files with the same file name as the file of which the uri is given, will be linked.
-	 * Note that this is the implementation for the EverSync clients.
-	 * The files of the EverSync clients get a bidirectional link (i.e. actually 2 links, from-to and to-from).
-	 * The files on the third party service will be linked as follows:
-	 * 		local file -> remote file (where this is the root taxonomy file, a.k.a 
-	 * 		the highest parent in case of nested self-relations because plugins can have their own hierarchy,
-	 * 		for example: book -> chapter -> page -> paragraph -> ...)
-	 * Linking files on EverSync clients 
-	 * @param fileUri
-	 */
-	@Override
-	public void searchAndLinkRelatedByUri(String fileUri) {
-		DigitalObject rootFile = _iServer.getDigitalObjectUrl(fileUri);
-		String rootFileHostId = rootFile.getProperty(HOST_ID).getValue();
-		HashSet<DigitalObject> remoteFilesToLink = _iServer.getAllDigitalObjects(rootFile.getName());
-		for(DigitalObject file : remoteFilesToLink) {
-			String hostType = file.getProperty(HOST_TYPE).getValue();
-			String hostId = file.getProperty(HOST_ID).getValue();
-			if(hostId.equals(rootFileHostId))
-				continue;
-			
-			if(hostType.equals(EVERSYNC_CLIENT)) {
-				super.linkFilesDirected(file, rootFile);
-				super.linkFilesDirected(rootFile, file);
-			}
-			
-			if(!hostType.equals(EVERSYNC_CLIENT)) {
-				// Get the root taxonomy items
-				HashSet<DigitalObject> taxonomyRootItems = super.getRootTaxonomyItems(hostId, file);
-				for (DigitalObject taxonomyRootItem : taxonomyRootItems) {
-					super.linkFilesDirected(rootFile, taxonomyRootItem);
-				}
-			}
-		}
-	}
 	
 	@Override
 	public JSONArray getAllLinkedFiles(String fileURI) {

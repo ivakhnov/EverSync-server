@@ -17,9 +17,9 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 
 	@Override
 	public void addAndLinkFile(String serviceName, String fileName, String fileId, String fileNameLabel) {
-		// Files on different third party services with the same are considered as POTENTIAL copies
-		// and have to be linked after user's confirmation.
-		HashSet<DigitalObject> remoteFilesToLink = _iServer.getAllDigitalObjects(fileName);
+		// Files on different clients with the same are considered as POTENTIAL copies
+		// and have to be linked.
+		HashSet<DigitalObject> localFilesToLink = _iServer.getAllDigitalObjects(fileName);
 		
 		// Declare new file object
 		DigitalObject newFile = null;
@@ -41,10 +41,11 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 			return; // Stop execution if there was an exception on creation
 		
 		// Automatically link the new file with the existing LOCAL copies
-		// (in order to link to local files via UI-client confirmation you have to change this for loop and/or add another one
-		for(DigitalObject file : remoteFilesToLink){
+		// (in order to link to local files via UI-client confirmation you have to change this for loop and/or 
+		// add another one
+		for(DigitalObject file : localFilesToLink){
 			String hostType = file.getProperty(HOST_TYPE).getValue();
-			if (!hostType.equals(EVERSYNC_CLIENT))
+			if (hostType.equals(SERVICE_PLUGIN))
 				continue; // don't link to yourself
 			
 			super.linkFilesDirected(file, newFile);
@@ -83,29 +84,6 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 			e.printStackTrace();
 		}
 		return fileId;
-	}
-	
-	/**
-	 * All the files with the same file name as the file of which the uri is given, will be linked.
-	 * Note that this is the implementation for the service plugins.
-	 * The files of the service plugins get a bidirectional link (i.e. actually 2 links, from-to and to-from)
-	 * The 'local' files on the EverSync clients are not considered in this linking procedure.
-	 * @param fileUri
-	 */
-	@Override
-	public void searchAndLinkRelatedByUri(String fileUri) {
-		DigitalObject rootFile = _iServer.getDigitalObjectUrl(fileUri);
-		String rootFileHostId = rootFile.getProperty(HOST_ID).getValue();
-		HashSet<DigitalObject> remoteFilesToLink = _iServer.getAllDigitalObjects(rootFile.getName());
-		for(DigitalObject file : remoteFilesToLink) {
-			String hostType = file.getProperty(HOST_TYPE).getValue();
-			String hostId = file.getProperty(HOST_ID).getValue();
-			if (hostId.equals(rootFileHostId) || !hostType.equals(SERVICE_PLUGIN))
-				continue; // don't link to yourself
-			
-			super.linkFilesDirected(file, rootFile);
-			super.linkFilesDirected(rootFile, file);
-		}
 	}
 	
 	@Override

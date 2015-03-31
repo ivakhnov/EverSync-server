@@ -102,11 +102,6 @@ public class FileEventHandler {
 		_iServerManagerServicePlugin.linkFilesDirected(parentFileUri, childFileUri);
 	}
 	
-	public void searchAndLinkRelated(Plugin plugin, String fileUri) {
-		_iServerManagerServicePlugin.searchAndLinkRelatedByUri(fileUri);
-		_iServerManagerEverSyncClient.searchAndLinkRelatedByUri(fileUri);
-	}
-	
 	public void modifyFile(EverSyncClient client, String fileName, String filePath) throws Exception {
 		System.out.println("server: File modification registered: "+filePath);
 		UploadRequest uploadReq = new UploadRequest(filePath);

@@ -57,8 +57,4 @@ public class Plugin {
 	protected void linkFilesDirected(String parentFileUri, String childFileUri) {
 		_fileEventHandler.linkFilesDirected(this, parentFileUri, childFileUri);
 	}
-	
-	protected void searchAndLinkRelated(String fileUri) {
-		_fileEventHandler.searchAndLinkRelated(this, fileUri);
-	}
 }
