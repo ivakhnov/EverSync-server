@@ -6,6 +6,7 @@ import com.restfb.Version;
 
 import eversync.plugins.Plugin;
 import eversync.plugins.PluginInterface;
+import eversync.server.EverSyncClient;
 import eversync.server.FileEventHandler;
 
 public class FacebookPlugin extends Plugin implements PluginInterface {
@@ -23,6 +24,10 @@ public class FacebookPlugin extends Plugin implements PluginInterface {
 	}
 	
 	public void pollForChanges() {
+		// TODO
+	}
+	
+	public void handleOpenOnClientRequest(EverSyncClient client, String id) {
 		// TODO
 	}
 	

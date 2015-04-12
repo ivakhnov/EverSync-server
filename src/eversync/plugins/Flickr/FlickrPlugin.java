@@ -18,11 +18,16 @@ import com.flickr4java.flickr.auth.AuthInterface;
 import com.flickr4java.flickr.auth.Permission;
 import com.flickr4java.flickr.photos.Photo;
 import com.flickr4java.flickr.photos.PhotoList;
+import com.flickr4java.flickr.photos.PhotoUrl;
+import com.flickr4java.flickr.photos.PhotosInterface;
 import com.flickr4java.flickr.photos.comments.Comment;
 import com.flickr4java.flickr.photos.comments.CommentsInterface;
+import com.restfb.experimental.api.impl.CommentsImpl;
+import com.restfb.types.Comment.Comments;
 
 import eversync.plugins.Plugin;
 import eversync.plugins.PluginInterface;
+import eversync.server.EverSyncClient;
 import eversync.server.FileEventHandler;
 
 public class FlickrPlugin extends Plugin implements PluginInterface {
@@ -93,7 +98,7 @@ public class FlickrPlugin extends Plugin implements PluginInterface {
 			
 			while (commentsIterator.hasNext()) {
 				Comment comment = (Comment) commentsIterator.next();
-				String id = String.join(".", photoId, comment.getId(), COMMENT_LABEL);
+				String id = constructId(photoId, comment.getId());
 				String label = String.join(" - ", comment.getAuthorName(), df.format(comment.getDateCreate()));
 				super.addAndLinkFile(photoName, id, label);
 			}
@@ -114,6 +119,50 @@ public class FlickrPlugin extends Plugin implements PluginInterface {
 			log.severe("Unable to replace the photo with id: " + fileUri);
 			e.printStackTrace();
 		}
+	}
+	
+	public void handleOpenOnClientRequest(EverSyncClient client, String id) {
+		Photo photo;
+		try {
+			String photoId = getActualPhotoId(id);
+			photo = _flickr.getPhotosInterface().getPhoto(photoId);
+			super.openUrlInBrowser(client, photo.getUrl());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private String constructId(String photoId, String commentId) {
+		return String.join(".", photoId, commentId, COMMENT_LABEL);
+	}
+	
+	private String getActualCommentId(String id) throws Exception {
+		Exception ex = new Exception("Unknown id: " + id);
+		String[] idElements = id.split("\\.");
+		if (idElements.length != 3)
+			throw ex;
+		
+		String label = idElements[idElements.length - 1];
+		if (!label.equals(COMMENT_LABEL))
+			throw ex;
+		
+		String commentId = idElements[idElements.length - 2];
+		return commentId;
+	}
+	
+	private String getActualPhotoId(String id) throws Exception {
+		Exception ex = new Exception("Unknown id: " + id);
+		String[] idElements = id.split("\\.");
+		if (idElements.length != 3)
+			throw ex;
+		
+		String label = idElements[idElements.length - 1];
+		if (!label.equals(COMMENT_LABEL))
+			throw ex;
+		
+		String photoId = idElements[0];
+		return photoId;
 	}
 	
 	private void warnAppRegistration() {

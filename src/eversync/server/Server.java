@@ -28,7 +28,7 @@ public class Server  {
 	private final static PluginManager _pluginManager = new PluginManager(_fileEventHandler);
 	private final static EverSyncClientManager _clientManager = new EverSyncClientManager();
 	
-	private final static MessageReflect _messageReflect = new MessageReflect(_fileEventHandler, _clientManager);
+	private final static MessageReflect _messageReflect = new MessageReflect(_fileEventHandler, _clientManager, _pluginManager);
 
 	// TOTO describe Callbacks
 	private final static IServerManagerInterface _iServerManagerServicePlugin = new IServerManagerServicePlugin();

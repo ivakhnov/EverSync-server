@@ -5,6 +5,9 @@ import java.lang.reflect.Method;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import static eversync.iServer.Constants.*;
+import eversync.plugins.PluginInterface;
+import eversync.plugins.PluginManager;
 import eversync.server.Message.DownloadPreparation;
 import eversync.server.Message.NormalMessage;
 import eversync.server.Message.OpenFileRequest;
@@ -14,14 +17,15 @@ public class MessageReflect {
 
 	private static FileEventHandler _fileEventHandler;
 	private static EverSyncClientManager _clientManager;
+	private static PluginManager _pluginManager;
 
-	public MessageReflect(FileEventHandler fileEventHandler, EverSyncClientManager clientManager) {
+	public MessageReflect(FileEventHandler fileEventHandler, EverSyncClientManager clientManager, PluginManager pluginManager) {
 		_fileEventHandler = fileEventHandler;
 		_clientManager = clientManager;
+		_pluginManager = pluginManager;
 	}
 
 	private void getLinkedFiles(EverSyncClient client, String fileName, String filePath) throws JSONException {
-		System.out.println("Test variable parsing: " + filePath + " " + fileName);
 		NormalMessage response = new NormalMessage();
 		response.setKeyValue("methodName", "showLinkedItems");
 
@@ -67,6 +71,14 @@ public class MessageReflect {
 		
 		receiverClient.sendFile(downloadPrep, fileByteArray);
 	};
+	
+	private void askPluginToOpen(EverSyncClient client, String hostType, String hostId, String uri) {
+		if (hostType.equals(EVERSYNC_CLIENT))
+			return;
+		
+		PluginInterface plugin = _pluginManager.get(hostId);
+		plugin.handleOpenOnClientRequest(client, uri);
+	}
 
 	public void parseMessage(EverSyncClient client, Message message) {
 		System.out.println("Parsing the message...");
@@ -120,6 +132,13 @@ public class MessageReflect {
 				String fileUri = params.getValue("fileUri");
 				String fileName = params.getValue("fileName");
 				copyFromRemoteAndOpen(client, hostId, fileUri, fileName);
+				}
+				break;
+			case "askPluginToOpen": {
+				String hostType = params.getValue("hostType");
+				String hostId = params.getValue("hostId");
+				String uri = params.getValue("uri");
+				askPluginToOpen(client, hostType, hostId, uri);
 				}
 				break;
 			default:

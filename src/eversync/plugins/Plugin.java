@@ -8,7 +8,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import eversync.server.EverSyncClient;
 import eversync.server.FileEventHandler;
+import eversync.server.Message.OpenUrlInBrowserRequest;
 
 public class Plugin {
 
@@ -56,5 +58,10 @@ public class Plugin {
 	
 	protected void linkFilesDirected(String parentFileUri, String childFileUri) {
 		_fileEventHandler.linkFilesDirected(this, parentFileUri, childFileUri);
+	}
+	
+	protected void openUrlInBrowser(EverSyncClient client, String url) {
+		OpenUrlInBrowserRequest req = new OpenUrlInBrowserRequest(url);
+		client.sendMsg(req);
 	}
 }

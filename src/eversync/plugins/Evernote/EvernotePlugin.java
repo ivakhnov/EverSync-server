@@ -23,6 +23,7 @@ import com.evernote.thrift.TException;
 
 import eversync.plugins.Plugin;
 import eversync.plugins.PluginInterface;
+import eversync.server.EverSyncClient;
 import eversync.server.FileEventHandler;
 
 public class EvernotePlugin extends Plugin implements PluginInterface {
@@ -135,6 +136,10 @@ public class EvernotePlugin extends Plugin implements PluginInterface {
 		}
 		System.out.println();
 		System.out.println();
+	}
+	
+	public void handleOpenOnClientRequest(EverSyncClient client, String id) {
+		// TODO
 	}
 	
 	/**

@@ -186,4 +186,12 @@ public abstract class Message {
 			super.setKeyValue("clients", clientsArray);
 		}
 	}
+	
+	public static class OpenUrlInBrowserRequest extends Message {
+		public OpenUrlInBrowserRequest(String url) {
+			super.setKeyValue("msgType", "Normal Message");
+			super.setKeyValue("methodName", "openUrlInBrowser");
+			super.setKeyValue("url", url);
+		}
+	}
 }
