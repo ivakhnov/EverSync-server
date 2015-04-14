@@ -121,6 +121,11 @@ public class FlickrPlugin extends Plugin implements PluginInterface {
 		}
 	}
 	
+	/**
+	 * Every plugin has to implement how it will open certain recource on a client.
+	 * Flickr plugin opens the comments for a photo by opening that photo in the default webbrowser.
+	 * id: id of the comment which was initially inserted in the iServer
+	 */
 	public void handleOpenOnClientRequest(EverSyncClient client, String id) {
 		Photo photo;
 		try {

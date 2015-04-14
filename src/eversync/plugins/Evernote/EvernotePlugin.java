@@ -29,6 +29,7 @@ import eversync.server.FileEventHandler;
 public class EvernotePlugin extends Plugin implements PluginInterface {
 	
 	private static final String NOTE_LABEL = "EvernoteNote";
+	private static final String FILE_LABEL = "EvernoteFile";
 	
 	private UserStoreClient userStore;
 	private NoteStoreClient noteStore;
@@ -139,7 +140,31 @@ public class EvernotePlugin extends Plugin implements PluginInterface {
 	}
 	
 	public void handleOpenOnClientRequest(EverSyncClient client, String id) {
-		// TODO
+		try {
+			// The default structure looks as follows:
+			// https://sandbox.evernote.com/shard/[shard id]/nl/[user id]/[note guid]
+			String url = "https://sandbox.evernote.com/shard/";
+			String chardId = userStore.getUser().getShardId();
+			int userId = userStore.getUser().getId();
+			String noteId = getActualNoteId(id);
+			
+			url = url + chardId + "/nl/" + userId + "/" + noteId;
+			super.openUrlInBrowser(client, url);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private String getActualNoteId(String id) throws Exception {
+		Exception ex = new Exception("Bad id: " + id);
+		String[] idElements = id.split("\\.");
+		if (idElements.length < 1 || idElements.length > 2)
+			throw ex;
+		if (idElements.length == 1)
+			idElements = id.split("\\*");
+		
+		return idElements[0];
 	}
 	
 	/**
@@ -194,7 +219,7 @@ public class EvernotePlugin extends Plugin implements PluginInterface {
 				if (resources != null && resources.size() > 0) 
 				{
 					for (Resource resource : resources) {
-						String fileId = resource.getGuid();
+						String fileId = String.join("*", noteData.getGuid(), resource.getGuid(), FILE_LABEL);
 						String fileName = resource.getAttributes().getFileName();
 						
 						String fileUri = super.addFile(fileName, fileId, fileName);
