@@ -17,4 +17,6 @@ public interface IServerManagerInterface {
 	public void deleteFile(String fileName);
 
 	public void modifyFile(String deviceId, String fileName);
+
+	public JSONArray getFilesByName(String fileName);
 }

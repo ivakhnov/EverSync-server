@@ -58,7 +58,7 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 	}
 
 	@Override
-	public String addFile(String serviceName, String fileName, String fileId, String fileNameLabel) {		
+	public String addFile(String serviceName, String fileName, String fileId, String fileNameLabel) {
 		// Since our file linking mechanism is based on file names, 
 		// we don't allow a service to add multiple files with the same file name. Those files are then
 		// considered to be duplicates for one single file.
@@ -96,7 +96,12 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 	public JSONArray getLinkedFiles(String fileURI) {
 		return super.getLinkedFiles(SERVICE_PLUGIN, fileURI);
 	}
-	
+
+	@Override
+	public JSONArray getFilesByName(String fileName) {
+		return super.getFilesByName(SERVICE_PLUGIN, fileName);
+	}
+
 	public void deleteFile(String fileName) {
 		// TODO Auto-generated method stub
 		

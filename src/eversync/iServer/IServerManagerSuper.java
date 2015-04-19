@@ -55,6 +55,11 @@ public class IServerManagerSuper {
 		this.linkFilesDirected(parentFile, childFile);
 	}
 	
+	public void linkFilesDirected(DigitalObject parentFile, String childFileUri) {
+		DigitalObject childFile = _iServer.getDigitalObjectUrl(childFileUri);
+		this.linkFilesDirected(parentFile, childFile);
+	}
+	
 	/**
 	 * Converting a DigitalObject to a JSONObject
 	 * @param obj
@@ -172,5 +177,18 @@ public class IServerManagerSuper {
 			currentRootItems.add((DigitalObject)object);
 			return;
 		}
+	}
+	
+	protected JSONArray getFilesByName(String hostType, String fileName) {
+		JSONArray results = new JSONArray();
+		HashSet<DigitalObject> localFilesToLink = _iServer.getAllDigitalObjects(fileName);
+		for(DigitalObject file : localFilesToLink) {
+			Property type = file.getProperty(HOST_TYPE);
+			if (type.getValue().equals(hostType)) {
+				JSONObject propertiesJson = digitalObjectToJson((DigitalObject)file);
+				results.put(propertiesJson);
+			}
+		}
+		return results;
 	}
 }

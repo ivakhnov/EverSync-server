@@ -7,6 +7,8 @@ import java.util.Iterator;
 import java.util.logging.Logger;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.sigtec.odi.CardinalityConstraintException;
 import org.st.iserver.DigitalObject;
 import org.st.iserver.util.Property;
@@ -56,6 +58,20 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 			
 			super.linkFilesDirected(file, newFile);
 			super.linkFilesDirected(newFile, file);
+			
+			// and link the dependencies
+			JSONArray dependentFiles = getLinkedFiles(file.getUri());
+			for(int x = 0; x < dependentFiles.length(); x++) {
+				JSONObject dependentFileObj;
+				try {
+					dependentFileObj = dependentFiles.getJSONObject(x);
+					String dependentUri = dependentFileObj.getString(FILE_URI);
+					super.linkFilesDirected(newFile, dependentUri);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 		
 		// Automatically link the new file with the existing copies on third party services
@@ -106,6 +122,11 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 	@Override
 	public JSONArray getLinkedFiles(String fileURI) {
 		return super.getLinkedFiles(EVERSYNC_CLIENT, fileURI);
+	}
+
+	@Override
+	public JSONArray getFilesByName(String fileName) {
+		return super.getFilesByName(EVERSYNC_CLIENT, fileName);
 	}
 
 	@Override

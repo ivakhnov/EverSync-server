@@ -45,6 +45,15 @@ public class MessageReflect {
 		response.setKeyValue("items", linkedFiles);
 		client.sendMsg(response);
 	}
+	
+	private void getLocalFilesByName(EverSyncClient client, String fileName) throws JSONException {
+		NormalMessage response = new NormalMessage();
+		response.setKeyValue("methodName", "showLinkedItems");
+		JSONObject localFiles = _fileEventHandler.getLocalFilesByName(client, fileName);
+
+		response.setKeyValue("items", localFiles);
+		client.sendMsg(response);
+	}
 
 	private void openRemotely(String hostId, String filePath) {
 		System.out.println("hostId for openRemote: " + hostId);
@@ -98,6 +107,11 @@ public class MessageReflect {
 				String fileName = params.getValue("fileName");
 				String filePath = params.getValue("filePath");
 				getLinkedFiles(client, fileName, filePath);
+				}
+				break;
+			case "getLocalFilesByName": {
+				String fileName = params.getValue("fileName");
+				getLocalFilesByName(client, fileName);
 				}
 				break;
 			case "addFile": {

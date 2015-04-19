@@ -13,6 +13,7 @@ import eversync.plugins.PluginManager;
 import eversync.server.Message.DownloadPreparation;
 import eversync.server.Message.SyncResponse;
 import eversync.server.Message.UploadRequest;
+import static eversync.iServer.Constants.*;
 
 /**
  * Handles the events by triggering the callbacks in case of a file change on one of the clients
@@ -56,7 +57,7 @@ public class FileEventHandler {
 		JSONArray remoteFiles = _iServerManagerServicePlugin.getLinkedFiles(filePath);
 		for(int x = 0; x < remoteFiles.length(); x++) {
 			JSONObject fileObj = remoteFiles.getJSONObject(x);
-			String pluginName = fileObj.getString("hostId");
+			String pluginName = fileObj.getString(HOST_ID);
 			JSONArray pluginRes = null;
 			try {
 				pluginRes = results.getJSONArray(pluginName);
@@ -67,6 +68,16 @@ public class FileEventHandler {
 			results.put(pluginName, pluginRes);
 		}
 		
+		return results;
+	}
+	
+	public JSONObject getLocalFilesByName(EverSyncClient client, String fileName) throws JSONException {
+		JSONObject results = new JSONObject();
+		// Collect local linked assets
+		JSONArray clientFiles = _iServerManagerEverSyncClient.getFilesByName(fileName);
+		if (clientFiles.length() > 0) {
+			results.put("MyDevices", clientFiles);
+		}
 		return results;
 	}
 
@@ -118,9 +129,9 @@ public class FileEventHandler {
 		// pushed when then become available
 		for (int x = 0; x < clientFiles.length(); x++) {
 			JSONObject file = clientFiles.getJSONObject(x);
-			String receiverId = file.getString("hostId");
-			String localFilePath = file.getString("uri");
-			String name = file.getString("name");
+			String receiverId = file.getString(HOST_ID);
+			String localFilePath = file.getString(FILE_URI);
+			String name = file.getString(FILE_NAME);
 			
 			// Skip the "uploader"
 			if (receiverId == client.getId()) {
@@ -148,8 +159,8 @@ public class FileEventHandler {
 			//	"hostId":"1d79d0a5-5b7a-4d28-a7a3-3234a83cf660",
 			//	"uri":"untitled_folder/wallpaper-2388706.jpg"
 			//}
-			PluginInterface plugin = _pluginManager.get(remoteFile.getString("hostId"));
-			plugin.replaceFile(remoteFile.getString("name"), remoteFile.getString("uri"), fileByteArray);
+			PluginInterface plugin = _pluginManager.get(remoteFile.getString(HOST_ID));
+			plugin.replaceFile(remoteFile.getString(FILE_NAME), remoteFile.getString(FILE_URI), fileByteArray);
 		}
 	}
 }
