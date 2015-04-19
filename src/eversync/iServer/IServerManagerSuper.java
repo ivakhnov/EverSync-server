@@ -3,6 +3,7 @@ package eversync.iServer;
 import static eversync.iServer.Constants.*;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 import org.json.JSONArray;
@@ -153,12 +154,18 @@ public class IServerManagerSuper {
 	
 	private void getParentOrSelfRecursion(String hostId, Entity object, HashSet<DigitalObject> currentRootItems) {
 		HashSet<Entity> sources = object.getMyParents();
+		// Filter out items from other hosts
+		for (Iterator<Entity> i = sources.iterator(); i.hasNext();) {
+			Entity entity = i.next();
+			String entityHostId = entity.getProperty(HOST_ID).getValue();
+			if (!entityHostId.equals(hostId)) {
+				i.remove();
+			}
+		}
+		// Now check to go a level up, or just add the current object as root taxonomy item
 		if (sources.size() > 0) {
 			for (Entity entity : sources){
-				String entityHostId = entity.getProperty(HOST_ID).getValue();
-				if (entityHostId.equals(hostId)) {
-					getParentOrSelfRecursion(hostId, entity, currentRootItems);
-				}
+				getParentOrSelfRecursion(hostId, entity, currentRootItems);
 			}
 		} else {
 			// A HashSet refuses adding a duplicate entry, so let's rely on that
