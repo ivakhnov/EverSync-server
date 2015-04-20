@@ -93,8 +93,8 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 	}
 	
 	@Override
-	public JSONArray getLinkedFiles(String fileURI) {
-		return super.getLinkedFiles(SERVICE_PLUGIN, fileURI);
+	public JSONArray getLinkedFiles(String fileURI, boolean includeSelf) {
+		return super.getLinkedFiles(SERVICE_PLUGIN, fileURI, includeSelf);
 	}
 
 	@Override

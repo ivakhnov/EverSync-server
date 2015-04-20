@@ -136,11 +136,13 @@ public class IServerManagerSuper {
 		return results;
 	}
 	
-	protected JSONArray getLinkedFiles(String hostType, String fileURI) {
+	protected JSONArray getLinkedFiles(String hostType, String fileURI, boolean includeSelf) {
 		JSONArray results = new JSONArray();
 		
 		DigitalObject aFile =  _iServer.getDigitalObjectUrl(fileURI);
 		HashSet<Entity> linkedFiles = aFile.getMyChildren();
+		if (includeSelf)
+			linkedFiles.add(aFile);
 		
 		for(Entity file : linkedFiles) {
 			if(file.getProperty(HOST_TYPE).getValue().equals(hostType)) {

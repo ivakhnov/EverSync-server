@@ -56,9 +56,6 @@ public class MessageReflect {
 	}
 
 	private void openRemotely(String hostId, String filePath) {
-		System.out.println("hostId for openRemote: " + hostId);
-		System.out.println("check its connection: " + _clientManager.checkConnection(hostId));
-		
 		EverSyncClient client = _clientManager.getClient(hostId);
 		OpenFileRequest req = new OpenFileRequest(filePath);
 		client.sendMsg(req);

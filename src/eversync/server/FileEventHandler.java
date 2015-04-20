@@ -48,13 +48,13 @@ public class FileEventHandler {
 		filePath = filePath.substring(filePath.indexOf(':') + 1, filePath.length());
 		JSONObject results = new JSONObject();
 		// Collect local linked assets
-		JSONArray clientFiles = _iServerManagerEverSyncClient.getLinkedFiles(filePath);
+		JSONArray clientFiles = _iServerManagerEverSyncClient.getLinkedFiles(filePath, true);
 		if (clientFiles.length() > 0) {
 			results.put("MyDevices", clientFiles);
 		}
 		
 		// Collect remote linked assets (on services)
-		JSONArray remoteFiles = _iServerManagerServicePlugin.getLinkedFiles(filePath);
+		JSONArray remoteFiles = _iServerManagerServicePlugin.getLinkedFiles(filePath, false);
 		for(int x = 0; x < remoteFiles.length(); x++) {
 			JSONObject fileObj = remoteFiles.getJSONObject(x);
 			String pluginName = fileObj.getString(HOST_ID);
@@ -124,7 +124,7 @@ public class FileEventHandler {
 		byte[] fileByteArray = client.getFile(fileSize);
 		
 		// Collect all the local (on the clients) linked entities to be updated
-		JSONArray clientFiles = _iServerManagerEverSyncClient.getLinkedFiles(filePath);
+		JSONArray clientFiles = _iServerManagerEverSyncClient.getLinkedFiles(filePath, true);
 		// Then notify all the registered client to update the file (the ones that are offline will get changes
 		// pushed when then become available
 		for (int x = 0; x < clientFiles.length(); x++) {
@@ -148,7 +148,7 @@ public class FileEventHandler {
 		}
 		
 		// All the remotely linked files (on the third party services)
-		JSONArray remoteFiles = _iServerManagerServicePlugin.getLinkedFiles(fileName);
+		JSONArray remoteFiles = _iServerManagerServicePlugin.getLinkedFiles(fileName, false);
 		// Update those files as well
 		for (int i = 0; i < remoteFiles.length(); i++) {
 			JSONObject remoteFile = (JSONObject) remoteFiles.get(i);

@@ -60,7 +60,7 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 			super.linkFilesDirected(newFile, file);
 			
 			// and link the dependencies
-			JSONArray dependentFiles = getLinkedFiles(file.getUri());
+			JSONArray dependentFiles = getLinkedFiles(file.getUri(), true);
 			for(int x = 0; x < dependentFiles.length(); x++) {
 				JSONObject dependentFileObj;
 				try {
@@ -120,8 +120,8 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 	}
 
 	@Override
-	public JSONArray getLinkedFiles(String fileURI) {
-		return super.getLinkedFiles(EVERSYNC_CLIENT, fileURI);
+	public JSONArray getLinkedFiles(String fileURI, boolean includeSelf) {
+		return super.getLinkedFiles(EVERSYNC_CLIENT, fileURI, includeSelf);
 	}
 
 	@Override

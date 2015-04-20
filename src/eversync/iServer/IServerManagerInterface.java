@@ -12,7 +12,7 @@ public interface IServerManagerInterface {
 	
 	public JSONArray getAllLinkedFiles(String fileURI);
 
-	public JSONArray getLinkedFiles(String fileURI);
+	public JSONArray getLinkedFiles(String fileURI, boolean includeSelf);
 
 	public void deleteFile(String fileName);
 
