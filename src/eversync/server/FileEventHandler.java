@@ -148,7 +148,7 @@ public class FileEventHandler {
 		}
 		
 		// All the remotely linked files (on the third party services)
-		JSONArray remoteFiles = _iServerManagerServicePlugin.getLinkedFiles(fileName, false);
+		JSONArray remoteFiles = _iServerManagerServicePlugin.getLinkedFiles(filePath, false);
 		// Update those files as well
 		for (int i = 0; i < remoteFiles.length(); i++) {
 			JSONObject remoteFile = (JSONObject) remoteFiles.get(i);

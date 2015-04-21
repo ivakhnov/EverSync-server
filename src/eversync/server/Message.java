@@ -147,7 +147,7 @@ public abstract class Message {
 	}
 
 	public static class DownloadPreparation extends Message {
-		public DownloadPreparation(int fileSize, String fileName, String filePath) {
+		public DownloadPreparation(int fileSize, String filePath, String fileName) {
 			super.setKeyValue("msgType", "Download Preparation");
 			super.setKeyValue("filePath", filePath);
 			super.setKeyValue("fileName", fileName);

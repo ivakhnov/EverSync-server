@@ -128,7 +128,6 @@ public class MessageReflect {
 			case "modifyFile": {
 				String fileName = params.getValue("fileName");
 				String filePath = params.getValue("filePath");
-				String lastModified = params.getValue("lastModified");
 				_fileEventHandler.modifyFile(client, fileName, filePath);
 				}
 				break;
