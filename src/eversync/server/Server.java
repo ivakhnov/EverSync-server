@@ -99,7 +99,21 @@ public class Server  {
 			// of a new stream connection. In this case, we don't go to the listening loop because additional stream 
 			// connections are only used to stream files, not to listen for messages.
 			if(_client.hasStreamConnections()) {
-				_client.streamData();
+				try {
+					Message msg = _client.getMsg();
+					String msgType = msg.getMsgType();
+					switch(msgType) {
+					case "Client Communication":
+						_client.parseMessage(msg);
+						break;
+					default :
+						log.severe("Received unsupported message type: '"+ msg.getMsgType() +"' for an additional connection from client: " + _clientID);
+					}
+				} catch (Exception e) {
+					// Handle the disconnection.
+					log.info("Additional connection closed by client: " + _clientID);
+					return;
+				}
 				return;
 			} else {
 				// While the client is connected, listen to its messages.
