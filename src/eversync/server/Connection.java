@@ -26,6 +26,7 @@ public class Connection {
 		} catch (IOException e) {
 			throw new IOException("Could not read from the input stream."); 
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new IOException("Message could not be parsed.");
 		}
 		return msg;
