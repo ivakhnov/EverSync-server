@@ -97,6 +97,28 @@ public class EverSyncClient {
 		return msg;
 	}
 	
+	public void parseMsgFromStreamConn() throws Exception {
+		Connection conn = _streamConns.poll();
+		Message msg = conn.getMsg();
+		String msgType = msg.getMsgType();
+		if (!msgType.equals("Client Communication")) {
+			log.severe("Inter-client communication: unsupported message type: '"+ msg.getMsgType() +"' from client: " + getId());
+			return;
+		}
+		switch(msg.getMsg()) {
+			case "Download Acknowledgement":
+				pushDataToClient(conn);
+				break;
+			case "File Upload Preparation":
+				int fileSize = Integer.parseInt(msg.getValue("fileSize"));
+				String filePath = msg.getValue("filePath");
+				pullDataFromClient(conn, fileSize, filePath);
+				break;
+			default :
+				log.severe("Received unsupported message: '"+ msg.getMsg());
+		}
+	}
+	
 	public void sendMsg(Message msg) {
 		_conn.sendMsg(msg);
 	}
@@ -111,36 +133,19 @@ public class EverSyncClient {
 		}
 	}
 
-	public void parseMessage(Message msg) throws Exception {
-		switch(msg.getMsg()) {
-		case "Download Acknowledgement":
-			pushDataToClient();;
-			break;
-		case "File Upload Preparation":
-			int fileSize = Integer.parseInt(msg.getValue("fileSize"));
-			String filePath = msg.getValue("filePath");
-			pullDataFromClient(fileSize, filePath);
-			break;
-		default :
-			log.severe("Received unsupported message: '"+ msg.getMsg());
-		}
-	}
-
 	/**
 	 * For each file that has to be sent/broadcasted by a client with other clients, and for each
 	 * file that has to be downloaded by a client from somewhere else, the client opens a new socket connection.
 	 * All the additional open connections of a client are added to the stream connections queue. Every file
 	 * that has to be pushed to a client is also kept in a queue, namely the stream data queue. 
 	 */
-	private void pushDataToClient() {
-		Connection streamConn = _streamConns.poll();
+	private void pushDataToClient(Connection streamConn) {
 		byte[] file = _pushDataToClient.poll();
 		streamConn.sendByteArray(file);
 		streamConn.closeConn();
 	}
 	
-	private void pullDataFromClient(int fileSize, String filePath) throws IOException {
-		Connection streamConn = _streamConns.poll();
+	private void pullDataFromClient(Connection streamConn, int fileSize, String filePath) throws IOException {
 		byte[] fileByteArray = streamConn.getByteArray(fileSize);
 		_pulledDataFromClient.put(filePath, fileByteArray);
 		streamConn.closeConn();

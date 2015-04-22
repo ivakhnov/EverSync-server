@@ -90,7 +90,7 @@ public class Server  {
 				log.info("A client tried to connect without success..");
 				e.printStackTrace();
 			}
-			log.info("Client connected: " + _clientID + " and has now " + _client.getNumberOfConnection() + " connection ("+_client.getOs()+").");
+			log.info("Client connected: " + _clientID + " and has now " + _client.getNumberOfConnection() + " connection(s)  ("+_client.getOs()+").");
 		}
 
 
@@ -100,19 +100,10 @@ public class Server  {
 			// connections are only used to stream files, not to listen for messages.
 			if(_client.hasStreamConnections()) {
 				try {
-					Message msg = _client.getMsg();
-					String msgType = msg.getMsgType();
-					switch(msgType) {
-					case "Client Communication":
-						_client.parseMessage(msg);
-						break;
-					default :
-						log.severe("Received unsupported message type: '"+ msg.getMsgType() +"' for an additional connection from client: " + _clientID);
-					}
+					_client.parseMsgFromStreamConn();
 				} catch (Exception e) {
-					// Handle the disconnection.
-					log.info("Additional connection closed by client: " + _clientID);
-					return;
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 				return;
 			} else {
