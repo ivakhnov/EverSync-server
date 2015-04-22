@@ -1,6 +1,7 @@
 package eversync.server;
 
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.logging.Logger;
@@ -17,8 +18,9 @@ public class EverSyncClient {
 	private Connection _conn = null;
 	private String _rootPath;
 	private Queue<Connection> _streamConns;
-	private Queue<byte[]> _streamData;
+	private Queue<byte[]> _pushDataToClient;
 	private Queue<Message> _messageQueue;
+	private Hashtable<String, byte[]> _pulledDataFromClient = new Hashtable<String, byte[]>();
 
 	/**
 	 * Constructor
@@ -27,7 +29,7 @@ public class EverSyncClient {
 	public EverSyncClient(String Id) {
 		_ID = Id;
 		_streamConns = new LinkedList<Connection>();
-		_streamData = new LinkedList<byte[]>();
+		_pushDataToClient = new LinkedList<byte[]>();
 		_messageQueue = new LinkedList<Message>();
 	}
 
@@ -99,18 +101,8 @@ public class EverSyncClient {
 		_conn.sendMsg(msg);
 	}
 
-	/**
-	 * Reads a file from the actual client as a byteArray (i.e. upload to server)
-	 * @param fileSize
-	 * @return
-	 * @throws IOException 
-	 */
-	public byte[] getFile(int fileSize) throws IOException {
-		return _conn.getByteArray(fileSize);
-	}
-
 	public void sendFile(Message downloadReq, byte[] file) {
-		_streamData.add(file);
+		_pushDataToClient.add(file);
 
 		if (isConnected()) {
 			sendMsg(downloadReq);
@@ -119,11 +111,54 @@ public class EverSyncClient {
 		}
 	}
 
-	public void streamData() {
+	public void parseMessage(Message msg) throws Exception {
+		switch(msg.getMsg()) {
+		case "Download Acknowledgement":
+			pushDataToClient();;
+			break;
+		case "File Upload Preparation":
+			int fileSize = Integer.parseInt(msg.getValue("fileSize"));
+			String filePath = msg.getValue("filePath");
+			pullDataFromClient(fileSize, filePath);
+			break;
+		default :
+			log.severe("Received unsupported message: '"+ msg.getMsg());
+		}
+	}
+
+	/**
+	 * For each file that has to be sent/broadcasted by a client with other clients, and for each
+	 * file that has to be downloaded by a client from somewhere else, the client opens a new socket connection.
+	 * All the additional open connections of a client are added to the stream connections queue. Every file
+	 * that has to be pushed to a client is also kept in a queue, namely the stream data queue. 
+	 */
+	private void pushDataToClient() {
 		Connection streamConn = _streamConns.poll();
-		byte[] file = _streamData.poll();
+		byte[] file = _pushDataToClient.poll();
 		streamConn.sendByteArray(file);
 		streamConn.closeConn();
+	}
+	
+	private void pullDataFromClient(int fileSize, String filePath) throws IOException {
+		Connection streamConn = _streamConns.poll();
+		byte[] fileByteArray = streamConn.getByteArray(fileSize);
+		_pulledDataFromClient.put(filePath, fileByteArray);
+		streamConn.closeConn();
+	}
+	
+	/**
+	 * Method intended to check whether a file is already pulled from client
+	 * which would mean that it's ready from broadcasting
+	 * @param filePath
+	 */
+	public boolean isFilePulled(String filePath) {
+		return _pulledDataFromClient.containsKey(filePath);
+	}
+	
+	public byte[] getPulledFileContent(String filePath) {
+		byte[] file = _pulledDataFromClient.get(filePath);
+		_pulledDataFromClient.remove(filePath);
+		return file;
 	}
 	
 	/**

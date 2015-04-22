@@ -115,16 +115,25 @@ public class FileEventHandler {
 	
 	public void modifyFile(EverSyncClient client, String fileName, String filePath) throws Exception {
 		System.out.println("server: File modification registered: "+filePath);
-		UploadRequest uploadReq = new UploadRequest(filePath);
-		
-		client.sendMsg(uploadReq);
-		Message res = client.getMsg();
-		int fileSize = Integer.parseInt(res.getValue("fileSize"));
-		
-		byte[] fileByteArray = client.getFile(fileSize);
 		
 		// Collect all the local (on the clients) linked entities to be updated
 		JSONArray clientFiles = _iServerManagerEverSyncClient.getLinkedFiles(filePath, true);
+		// All the remotely linked files (on the third party services)
+		JSONArray remoteFiles = _iServerManagerServicePlugin.getLinkedFiles(filePath, false);
+		
+//		if (clientFiles.length() == 0 && remoteFiles.length() == 0)
+//			return;
+		
+		UploadRequest uploadReq = new UploadRequest(filePath);
+		client.sendMsg(uploadReq);
+		
+		while(!client.isFilePulled(filePath))
+		{
+			Thread.sleep(1000);
+		}
+		
+		byte[] fileByteArray = client.getPulledFileContent(filePath);
+		
 		// Then notify all the registered client to update the file (the ones that are offline will get changes
 		// pushed when then become available
 		for (int x = 0; x < clientFiles.length(); x++) {
@@ -140,15 +149,13 @@ public class FileEventHandler {
 			} else {
 				System.out.println("Send to one receiver");
 				// Download request is needed to ask a client to be prepared to download a file from the server
-				DownloadPreparation downloadPrep = new DownloadPreparation(fileSize, localFilePath, name);
+				DownloadPreparation downloadPrep = new DownloadPreparation(fileByteArray.length, localFilePath, name);
 				
 				EverSyncClient clientToUpdate = _clientManager.getClient(receiverId);
 				clientToUpdate.sendFile(downloadPrep, fileByteArray);
 			}
 		}
 		
-		// All the remotely linked files (on the third party services)
-		JSONArray remoteFiles = _iServerManagerServicePlugin.getLinkedFiles(filePath, false);
 		// Update those files as well
 		for (int i = 0; i < remoteFiles.length(); i++) {
 			JSONObject remoteFile = (JSONObject) remoteFiles.get(i);

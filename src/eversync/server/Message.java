@@ -84,6 +84,10 @@ public abstract class Message {
 	public String getMsgType() throws Exception {
 		return this.getValue("msgType");
 	}
+	
+	public String getMsg() throws Exception {
+		return this.getValue("msg");
+	}
 
 	/**
 	 * Subclasses of the Message class. 

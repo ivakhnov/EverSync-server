@@ -65,16 +65,16 @@ public class MessageReflect {
 		UploadRequest uploadReq = new UploadRequest(fileUri);
 		EverSyncClient hostClient = _clientManager.getClient(hostId);
 		hostClient.sendMsg(uploadReq);
-		Message res = hostClient.getMsg();
-		int fileSize = Integer.parseInt(res.getValue("fileSize"));
 		
-		String filePath = null;
+		while(!hostClient.isFilePulled(fileUri))
+		{
+			Thread.sleep(1000);
+		}
 		
-		byte[] fileByteArray = hostClient.getFile(fileSize);
+		byte[] fileByteArray = hostClient.getPulledFileContent(fileUri);
 		
 		// Download request is needed to ask a client to be prepared to download a file from the server
-		DownloadPreparation downloadPrep = new DownloadPreparation(fileSize, fileName, filePath);
-		
+		DownloadPreparation downloadPrep = new DownloadPreparation(fileByteArray.length, fileName, fileUri);
 		receiverClient.sendFile(downloadPrep, fileByteArray);
 	};
 	
