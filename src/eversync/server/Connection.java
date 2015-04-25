@@ -42,8 +42,13 @@ public class Connection {
 
 	public byte[] getByteArray(int fileSize) throws IOException {
 		byte[] readByteArray = new byte[fileSize];
+		String stringRepresentation = new String();
 		try {
-			_inBffStream.read(readByteArray, 0, readByteArray.length);
+			stringRepresentation = _inBffReader.readLine();
+			String[] bytesString = stringRepresentation.split(",");
+			for(int i = 0 ; i < readByteArray.length ; ++i) {
+				readByteArray[i] = Byte.parseByte(bytesString[i]);
+			}
 		} catch (IOException e) {
 			throw new IOException("Could not read from the input stream.");
 		}
