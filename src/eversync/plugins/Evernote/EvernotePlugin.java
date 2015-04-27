@@ -61,18 +61,19 @@ public class EvernotePlugin extends Plugin implements PluginInterface {
 		noteStore = factory.createNoteStoreClient();
 	}
 	
-	public void pollForChanges() throws EDAMUserException, EDAMSystemException, TException {
-		int latestUpdateCount = 0; // Persist this value
-				 
-		// Each time you want to check for new and updated notes...
-		SyncState currentState = noteStore.getSyncState();
-		int currentUpdateCount = currentState.getUpdateCount();
-		
-		System.out.println("getUpdateCount: " + currentUpdateCount);
-		System.out.println("getSyncState: " + noteStore.getSyncState());
-		
-		if (currentUpdateCount > latestUpdateCount) {
-		 
+	public void pollForChanges() {
+		try {
+			int latestUpdateCount = 0; // Persist this value
+					 
+			// Each time you want to check for new and updated notes...
+			SyncState currentState = noteStore.getSyncState();
+			int currentUpdateCount = currentState.getUpdateCount();
+			
+			System.out.println("getUpdateCount: " + currentUpdateCount);
+			System.out.println("getSyncState: " + noteStore.getSyncState());
+			
+			if (currentUpdateCount > latestUpdateCount) {
+			 
 //		  // Something in the account has changed, so search for notes
 //		  NotesMetadataList newNotes = noteStore.findNotesMetadata( ... );
 //		  
@@ -80,9 +81,13 @@ public class EvernotePlugin extends Plugin implements PluginInterface {
 //		  for (NoteMetadata note : newNotes.getNotes()) {
 //		    // ...
 //		  }
-		  
-		  // Keep track of the new high-water mark
-		  latestUpdateCount = currentUpdateCount;
+			  
+			  // Keep track of the new high-water mark
+			  latestUpdateCount = currentUpdateCount;
+			}
+		} catch (EDAMUserException | EDAMSystemException | TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 	

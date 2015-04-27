@@ -25,4 +25,6 @@ public interface PluginInterface {
 	public void init(FileEventHandler fileEventHandler);
 	
 	public void run();
+	
+	public void pollForChanges();
 }

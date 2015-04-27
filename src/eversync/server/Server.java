@@ -55,6 +55,7 @@ public class Server  {
 		
 		// Install all plugins in the system.
 		_pluginManager.installPlugins();
+		_pluginManager.startPolling();
 
 		ServerSocket serverSocket = new ServerSocket(_serverPort);
 		try {
@@ -113,9 +114,6 @@ public class Server  {
 						Message msg = _client.getMsg();
 						String msgType = msg.getMsgType();
 						switch(msgType) {
-	//					case "Sync Request":
-	//						synchronize(_client, msg);
-	//							break;
 						case "Normal Request":
 							_messageReflect.parseMessage(_client, msg);
 							break;
