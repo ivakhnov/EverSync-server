@@ -177,6 +177,10 @@ public class EverSyncClient {
 		}
 	}
 	
+	public void addToMessageQueue(Message msg) {
+		_messageQueue.add(msg);
+	}
+	
 	// For debugging purposes
 	public int getNumberOfConnection() {
 		int res = 0;

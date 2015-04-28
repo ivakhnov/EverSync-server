@@ -139,13 +139,27 @@ public class EverSyncClientManager {
 	}
 	
 	/**
-	 * Broadcast a massega to all the clients
+	 * Broadcast a message to all the clients
 	 * @param msg
 	 */
 	public void broadcast(Message msg) {
 		for(String connectedClientId : _connectedClients) {
 			EverSyncClient client = _installedClients.get(connectedClientId);
 			client.sendMsg(msg);
+		}
+	}
+	
+	/**
+	 * Broadcasts a message to all connected clients, and adds to message queue for the disconnected ones
+	 * so that they eventually will recieve the message the next time they get connected 
+	 */
+	public void broadcastQueued(Message msg) {
+		for(EverSyncClient installedClient : _installedClients.values()) {
+			if (_connectedClients.contains(installedClient.getId())) {
+				installedClient.sendMsg(msg);
+			} else {
+				installedClient.addToMessageQueue(msg);
+			}
 		}
 	}
 }

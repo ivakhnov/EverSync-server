@@ -64,4 +64,8 @@ public class Plugin {
 		OpenUrlInBrowserRequest req = new OpenUrlInBrowserRequest(url);
 		client.sendMsg(req);
 	}
+	
+	protected void requestClientsToLink(String fileName, String nameLabel) {
+		_fileEventHandler.requestClientsToLink(this, fileName, nameLabel);
+	}
 }

@@ -13,6 +13,7 @@ import eversync.plugins.PluginManager;
 import eversync.server.Message.DownloadPreparation;
 import eversync.server.Message.SyncResponse;
 import eversync.server.Message.UploadRequest;
+import eversync.server.Message.AddToLinkQueueRequest;
 import static eversync.iServer.Constants.*;
 
 /**
@@ -113,6 +114,11 @@ public class FileEventHandler {
 		_iServerManagerServicePlugin.linkFilesDirected(parentFileUri, childFileUri);
 	}
 	
+	public void requestClientsToLink(Plugin plugin, String fileName, String fileLabel) {
+		AddToLinkQueueRequest msg = new AddToLinkQueueRequest(plugin, fileName, fileLabel);
+		_clientManager.broadcastQueued(msg);
+	}
+	
 	public void modifyFile(EverSyncClient client, String fileName, String filePath) throws Exception {
 		System.out.println("server: File modification registered: "+filePath);
 		
@@ -121,8 +127,8 @@ public class FileEventHandler {
 		// All the remotely linked files (on the third party services)
 		JSONArray remoteFiles = _iServerManagerServicePlugin.getLinkedFiles(filePath, false);
 		
-//		if (clientFiles.length() == 0 && remoteFiles.length() == 0)
-//			return;
+		if (clientFiles.length() == 0 && remoteFiles.length() == 0)
+			return;
 		
 		UploadRequest uploadReq = new UploadRequest(filePath);
 		client.sendMsg(uploadReq);

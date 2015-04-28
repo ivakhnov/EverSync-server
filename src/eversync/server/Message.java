@@ -1,5 +1,7 @@
 package eversync.server;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Set;
 
@@ -7,6 +9,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import eversync.plugins.Plugin;
 import eversync.plugins.PluginInterface;
 
 public abstract class Message {
@@ -196,6 +199,25 @@ public abstract class Message {
 			super.setKeyValue("msgType", "Normal Message");
 			super.setKeyValue("methodName", "openUrlInBrowser");
 			super.setKeyValue("url", url);
+		}
+	}
+	
+	public static class AddToLinkQueueRequest extends Message {
+		public AddToLinkQueueRequest(Plugin plugin,String fileName, String fileLabel) {
+			super.setKeyValue("msgType", "Normal Message");
+			super.setKeyValue("methodName", "addToLinkQueue");
+			
+			JSONObject fileInfo = new JSONObject(); 
+			try {
+				fileInfo.put("hostId", plugin.getPluginName());
+				fileInfo.put("name", fileName);
+				fileInfo.put("nameLabel", fileLabel);
+				fileInfo.put("adate", new SimpleDateFormat("mm:HH-dd/MM").format(Calendar.getInstance().getTime()));
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			super.setKeyValue("fileInfo", fileInfo);
 		}
 	}
 }

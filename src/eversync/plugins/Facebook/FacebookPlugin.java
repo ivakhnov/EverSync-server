@@ -1,5 +1,7 @@
 package eversync.plugins.Facebook;
 
+import java.util.UUID;
+
 import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
 import com.restfb.Version;
@@ -12,6 +14,7 @@ import eversync.server.FileEventHandler;
 public class FacebookPlugin extends Plugin implements PluginInterface {
 	
 	private FacebookClient _fbClient;
+	private String EXT_JPG = "ext_jpg";
 	
 	/**
 	 * Constructor
@@ -24,7 +27,13 @@ public class FacebookPlugin extends Plugin implements PluginInterface {
 	}
 	
 	public void pollForChanges() {
-		// TODO
+		String photoId = UUID.randomUUID().toString();
+		
+		String photoName = photoId;
+		String id = String.join(".", photoId, EXT_JPG);
+		String label = photoId;
+		super.addFile(photoName, id, label);
+		super.requestClientsToLink(photoName, "photo");
 	}
 	
 	public void handleOpenOnClientRequest(EverSyncClient client, String id) {

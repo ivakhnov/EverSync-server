@@ -83,16 +83,17 @@ public class PluginManager {
 		log.info("All plugins initialized successfully!");
 	}
 
-	public void startPolling() {
+	public void startPolling(final long interval) {
 		ExecutorService service = Executors.newFixedThreadPool(4);
 		service.submit(new Runnable() {
 			public void run() {
-				for (PluginInterface plugin : _plugins.values()) {
-					plugin.pollForChanges();
-				}
 				try {
-					//Pause for 10 seconds
-					Thread.sleep(10000);
+					while(true) {
+						for (PluginInterface plugin : _plugins.values()) {
+							plugin.pollForChanges();
+						}
+						Thread.sleep(interval); //Pause for the given interval
+					}
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
