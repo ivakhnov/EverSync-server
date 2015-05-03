@@ -37,6 +37,7 @@ public class FlickrPlugin extends Plugin implements PluginInterface {
 	private Auth _auth = null;
 	
 	private final String COMMENT_LABEL = "FlickrComment";
+	private final DateFormat _df = new SimpleDateFormat("dd/MM/yyyy");
 	
 	/**
 	 * Constructor.
@@ -85,7 +86,6 @@ public class FlickrPlugin extends Plugin implements PluginInterface {
 	}
 	
 	private void collectComments(Photo photo) {
-		DateFormat df = new SimpleDateFormat("dd/MM/yyyy");
 		String photoName = photo.getTitle();
 		String photoId = photo.getId();
 		//fileId += "." + "FlickrComment";
@@ -99,7 +99,7 @@ public class FlickrPlugin extends Plugin implements PluginInterface {
 			while (commentsIterator.hasNext()) {
 				Comment comment = (Comment) commentsIterator.next();
 				String id = constructId(photoId, comment.getId());
-				String label = String.join(" - ", comment.getAuthorName(), df.format(comment.getDateCreate()));
+				String label = String.join(" - ", comment.getAuthorName(), _df.format(comment.getDateCreate()));
 				super.addAndLinkFile(photoName, id, label);
 			}
 		} catch (FlickrException e) {

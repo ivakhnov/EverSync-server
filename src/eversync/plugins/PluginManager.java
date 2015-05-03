@@ -69,7 +69,7 @@ public class PluginManager {
 //		installPlugin("Evernote", evernote);
 
 		log.info("-- Initializing Facebook plugin ...");
-		FacebookPlugin facebook = new FacebookPlugin("testToken");
+		FacebookPlugin facebook = new FacebookPlugin("CAACEdEose0cBAHteDtvLzeU8B5vMXQkIJhw0d7mrdOhNFyF1i9Pr5YRrKTaGBzG4NEwdOBhrCg1P3xr9DXOXVsp1jUi3MpmUktt49QQhVqO6M4G3SjVWvZCTHyOpMPZCq8J2DXRN4RNzVbNry9Vpudw9k7pMrO5jqXabPS5sDvPcUNOaEqEYrc8m9myt0w9a1raYOycpSg76pD0TOe");
 		installPlugin("Facebook", facebook);
 		
 //		log.info("-- Initializing Flickr plugin ...");
@@ -89,10 +89,10 @@ public class PluginManager {
 			public void run() {
 				try {
 					while(true) {
+						Thread.sleep(interval); //Pause for the given interval
 						for (PluginInterface plugin : _plugins.values()) {
 							plugin.pollForChanges();
 						}
-						Thread.sleep(interval); //Pause for the given interval
 					}
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
