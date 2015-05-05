@@ -2,5 +2,6 @@
  * 	Associate the plugin icon
  */
 
-.jqueryFileTree LI.plugin_facebook { background: url(icon.png) left top no-repeat; }
-.jqueryFileTree LI.ext_FacebookPlugin { background: url(album.png) left top no-repeat; }
+.jqueryFileTree LI.plugin_Facebook { background: url(icon.png) left top no-repeat; }
+.jqueryFileTree LI.ext_FacebookAlbum { background: url(album.png) left top no-repeat; }
+.jqueryFileTree LI.ext_FacebookComment { background: url(comment2.png) left top no-repeat; }

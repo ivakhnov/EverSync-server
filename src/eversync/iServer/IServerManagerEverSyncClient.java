@@ -134,11 +134,14 @@ public class IServerManagerEverSyncClient extends IServerManagerSuper implements
 		// TODO Auto-generated method stub
 		
 	}
+	
+	@Override
+	public void linkFilesDirectedByName(String parentFileName, String childFileName, String childFileHostId) {
+		super.linkFilesDirectedByName(EVERSYNC_CLIENT, parentFileName, childFileHostId, childFileName);
+	}
 
 	@Override
 	public void modifyFile(String deviceId, String fileName) {
 		// TODO Auto-generated method stub
-		
 	}
-	
 }

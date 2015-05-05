@@ -8,7 +8,9 @@ public interface IServerManagerInterface {
 
 	public String addFile(String deviceId, String fileName, String fileURI, String fileNameLabel);
 	
-	public void linkFilesDirected(String parentFileUri, String childFileUri);
+	public void linkFilesDirected(String parentFileUri, String childFileUr);
+	
+	public void linkFilesDirectedByName(String parentFileName, String childFileName, String childFileHostId);
 	
 	public JSONArray getAllLinkedFiles(String fileURI);
 

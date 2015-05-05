@@ -14,6 +14,7 @@ import eversync.server.Message.DownloadPreparation;
 import eversync.server.Message.SyncResponse;
 import eversync.server.Message.UploadRequest;
 import eversync.server.Message.AddToLinkQueueRequest;
+import eversync.server.Message.RemoveFromLinkQueueRequest;
 import static eversync.iServer.Constants.*;
 
 /**
@@ -117,6 +118,26 @@ public class FileEventHandler {
 	public void requestClientsToLink(Plugin plugin, String fileName, String fileLabel) {
 		AddToLinkQueueRequest msg = new AddToLinkQueueRequest(plugin, fileName, fileLabel);
 		_clientManager.broadcastQueued(msg);
+	}
+	
+	public void linkTwoFiles(EverSyncClient client, String localFileName, PluginInterface plugin, String remoteFileName) {
+		RemoveFromLinkQueueRequest msg = new RemoveFromLinkQueueRequest(plugin, remoteFileName);
+		
+		_iServerManagerEverSyncClient.linkFilesDirectedByName(localFileName, remoteFileName, plugin.getPluginName());
+		
+		JSONArray clientFiles = _iServerManagerEverSyncClient.getFilesByName(localFileName);
+		for (int i = 0; i < clientFiles.length(); i++) {
+			try {
+				JSONObject file = clientFiles.getJSONObject(i);
+				String fileClientId = file.getString(HOST_ID);
+				EverSyncClient clnt = _clientManager.getClient(fileClientId);
+				clnt.sendMsg(msg);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
 	}
 	
 	public void modifyFile(EverSyncClient client, String fileName, String filePath) throws Exception {

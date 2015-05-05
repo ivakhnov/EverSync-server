@@ -85,6 +85,11 @@ public class MessageReflect {
 		PluginInterface plugin = _pluginManager.get(hostId);
 		plugin.handleOpenOnClientRequest(client, uri);
 	}
+	
+	private void linkTwoFiles(EverSyncClient client, String localFileName, String hostId, String remoteFileName) {
+		PluginInterface plugin = _pluginManager.get(hostId);
+		_fileEventHandler.linkTwoFiles(client, localFileName, plugin, remoteFileName);
+	}
 
 	public void parseMessage(EverSyncClient client, Message message) {
 		System.out.println("Parsing the message...");
@@ -149,6 +154,13 @@ public class MessageReflect {
 				String hostId = params.getValue("hostId");
 				String uri = params.getValue("uri");
 				askPluginToOpen(client, hostType, hostId, uri);
+				}
+				break;
+			case "linkTwoFiles": {
+				String localFileName = params.getValue("localFileName");
+				String remoteFileName = params.getValue("remoteFileName");
+				String hostId = params.getValue("hostId");
+				linkTwoFiles(client, localFileName, hostId, remoteFileName);
 				}
 				break;
 			default:

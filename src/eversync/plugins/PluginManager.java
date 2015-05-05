@@ -69,7 +69,7 @@ public class PluginManager {
 //		installPlugin("Evernote", evernote);
 
 		log.info("-- Initializing Facebook plugin ...");
-		FacebookPlugin facebook = new FacebookPlugin("CAACEdEose0cBAHteDtvLzeU8B5vMXQkIJhw0d7mrdOhNFyF1i9Pr5YRrKTaGBzG4NEwdOBhrCg1P3xr9DXOXVsp1jUi3MpmUktt49QQhVqO6M4G3SjVWvZCTHyOpMPZCq8J2DXRN4RNzVbNry9Vpudw9k7pMrO5jqXabPS5sDvPcUNOaEqEYrc8m9myt0w9a1raYOycpSg76pD0TOe");
+		FacebookPlugin facebook = new FacebookPlugin("CAACEdEose0cBAGKXCL8z7HOr5XZC3HCrHAn5dRL2KRw3pP5gZASIkI7mKrwrepMAK2pjcZAvCcJUI1ozgZAnjNjqgZBxKqTWxNN6oxOWIBQMqbpq7EIJj4IO056AN4H34osSKBvQ76HijBZBw7n3el1Rc51YZBZAoPMGIxsVJVz397nNThdGoT4ZC1j20Tf35nz84kv76K6RjnHLZBEnoe6fmA");
 		installPlugin("Facebook", facebook);
 		
 //		log.info("-- Initializing Flickr plugin ...");

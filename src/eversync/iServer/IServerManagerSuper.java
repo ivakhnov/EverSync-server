@@ -60,6 +60,35 @@ public class IServerManagerSuper {
 		this.linkFilesDirected(parentFile, childFile);
 	}
 	
+	protected void linkFilesDirectedByName(String parentFileHostType, String parentFileName, String childFileHostId, String childFileName) {
+		HashSet<DigitalObject> childFilesRootTaxonomies = new HashSet<DigitalObject>();
+		
+		// Get all the object with this given name
+		HashSet<DigitalObject> childFiles = _iServer.getAllDigitalObjects(childFileName);
+		// Remove the ones from irrelevant host types
+		for (Iterator<DigitalObject> i = childFiles.iterator(); i.hasNext();) {
+		    DigitalObject file = i.next();
+		    String hostId = file.getProperty(HOST_ID).getValue();
+		    if (hostId.equals(childFileHostId)) {
+		    	childFilesRootTaxonomies.addAll(this.getRootTaxonomyItems(childFileHostId, file));
+		    }
+		}
+		
+		// Now loop through the parent files and link the relevant ones
+		HashSet<DigitalObject> parentFiles = _iServer.getAllDigitalObjects(parentFileName);
+		
+		for (Iterator<DigitalObject> parentI = parentFiles.iterator(); parentI.hasNext();) {
+		    DigitalObject parentFile = parentI.next();
+		    String hostType = parentFile.getProperty(HOST_TYPE).getValue();
+		    if (hostType.equals(parentFileHostType)) {
+		    	for (Iterator<DigitalObject> childI = childFilesRootTaxonomies.iterator(); childI.hasNext();) {
+				    DigitalObject childFile = childI.next();
+				    this.linkFilesDirected(parentFile, childFile);
+				}
+		    }
+		}
+	}
+	
 	/**
 	 * Converting a DigitalObject to a JSONObject
 	 * @param obj

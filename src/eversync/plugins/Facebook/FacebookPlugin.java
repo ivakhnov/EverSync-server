@@ -32,6 +32,8 @@ public class FacebookPlugin extends Plugin implements PluginInterface {
 	private JsonMapper _jsonMapper = new DefaultJsonMapper();
 	
 	private String ALBUM_LABEL = "FacebookAlbum";
+	private String COMMENT_LABEL = "FacebookComment";
+	
 	private long _lastSyncTime = System.currentTimeMillis() / 1000L;
 	private final DateFormat _df = new SimpleDateFormat("dd/MM/yyyy");
 	
@@ -59,9 +61,9 @@ public class FacebookPlugin extends Plugin implements PluginInterface {
 				String albumId = subString.substring(0, subString.indexOf("."));
 				Album album = _fbClient.fetchObject(albumId, Album.class);
 				
-				albumId = String.join(".", albumId, ALBUM_LABEL);
-				super.addFile(photo.getId(), photo.getId(), album.getName());
-				super.requestClientsToLink(photo.getId(), "photo in album: " + album.getName());
+				String photoName = String.join(".", photo.getId(), ALBUM_LABEL);
+				super.addFile(photoName, photo.getId(), album.getName());
+				super.requestClientsToLink(photoName, "photo in album: " + album.getName());
 			}
 		}
 		
@@ -79,7 +81,10 @@ public class FacebookPlugin extends Plugin implements PluginInterface {
 				for(Comment comment : newComments) {
 					String photoId = comment.getId().substring(0, comment.getId().indexOf("_"));
 					String label = String.join(" - ", comment.getFrom().getName(), _df.format(comment.getCreatedTime()));
-					super.addAndLinkFile(photoId, comment.getId(), label);
+					String commentId = String.join(".", comment.getId(), COMMENT_LABEL);
+					
+					String commentUri = super.addFile(commentId, commentId, label);
+					super.linkFilesDirected(photoId, commentUri);
 				}
 			}
 		}

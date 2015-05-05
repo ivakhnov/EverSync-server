@@ -131,4 +131,8 @@ public class IServerManagerServicePlugin extends IServerManagerSuper implements 
 		return resultUri;
 	}
 
+	@Override
+	public void linkFilesDirectedByName(String parentFileName, String childFileName, String childFileHostId) {
+		super.linkFilesDirectedByName(SERVICE_PLUGIN, parentFileName, childFileHostId, childFileName);
+	}
 }

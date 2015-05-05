@@ -203,7 +203,7 @@ public abstract class Message {
 	}
 	
 	public static class AddToLinkQueueRequest extends Message {
-		public AddToLinkQueueRequest(Plugin plugin,String fileName, String fileLabel) {
+		public AddToLinkQueueRequest(Plugin plugin, String fileName, String fileLabel) {
 			super.setKeyValue("msgType", "Normal Message");
 			super.setKeyValue("methodName", "addToLinkQueue");
 			
@@ -213,6 +213,23 @@ public abstract class Message {
 				fileInfo.put("name", fileName);
 				fileInfo.put("nameLabel", fileLabel);
 				fileInfo.put("adate", new SimpleDateFormat("mm:HH-dd/MM").format(Calendar.getInstance().getTime()));
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			super.setKeyValue("fileInfo", fileInfo);
+		}
+	}
+	
+	public static class RemoveFromLinkQueueRequest extends Message {
+		public RemoveFromLinkQueueRequest(PluginInterface plugin, String fileName) {
+			super.setKeyValue("msgType", "Normal Message");
+			super.setKeyValue("methodName", "removeFromLinkQueue");
+			
+			JSONObject fileInfo = new JSONObject(); 
+			try {
+				fileInfo.put("hostId", plugin.getPluginName());
+				fileInfo.put("name", fileName);
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
