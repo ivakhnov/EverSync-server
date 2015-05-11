@@ -61,8 +61,9 @@ public class FacebookPlugin extends Plugin implements PluginInterface {
 				String albumId = subString.substring(0, subString.indexOf("."));
 				Album album = _fbClient.fetchObject(albumId, Album.class);
 				
-				String photoName = String.join(".", photo.getId(), ALBUM_LABEL);
-				super.addFile(photoName, photo.getId(), album.getName());
+				String photoName = photo.getId();
+				String photoId = String.join(".", photo.getId(), ALBUM_LABEL);
+				super.addFile(photoName, photoId, album.getName());
 				super.requestClientsToLink(photoName, "photo in album: " + album.getName());
 			}
 		}
@@ -81,8 +82,9 @@ public class FacebookPlugin extends Plugin implements PluginInterface {
 				for(Comment comment : newComments) {
 					String photoId = comment.getId().substring(0, comment.getId().indexOf("_"));
 					String label = String.join(" - ", comment.getFrom().getName(), _df.format(comment.getCreatedTime()));
-					String commentId = String.join(".", comment.getId(), COMMENT_LABEL);
+					String commentId = String.join(".", photoId, comment.getId(), COMMENT_LABEL);
 					
+					photoId = String.join(".", photoId, ALBUM_LABEL);
 					String commentUri = super.addFile(commentId, commentId, label);
 					super.linkFilesDirected(photoId, commentUri);
 				}
@@ -94,7 +96,10 @@ public class FacebookPlugin extends Plugin implements PluginInterface {
 	}
 	
 	public void handleOpenOnClientRequest(EverSyncClient client, String id) {
-		// TODO
+		String[] idElements = id.split("\\.");
+		String photoId = idElements[0];
+		Photo photo = _fbClient.fetchObject(photoId, Photo.class);
+		super.openUrlInBrowser(client, photo.getLink());
 	}
 	
 	/**

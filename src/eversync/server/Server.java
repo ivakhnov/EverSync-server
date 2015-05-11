@@ -55,7 +55,7 @@ public class Server  {
 		
 		// Install all plugins in the system.
 		_pluginManager.installPlugins();
-		_pluginManager.startPolling(10000); //every 10 seconds
+		_pluginManager.startPolling(50000); //every 10 seconds
 
 		ServerSocket serverSocket = new ServerSocket(_serverPort);
 		try {
